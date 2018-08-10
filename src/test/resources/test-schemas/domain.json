@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "domain_test",
+  "fields":
+  [
+    {
+      "name": "domain_property",
+      "type":
+      {
+        "type": "string",
+        "arg.properties": {
+          "length": 32,
+          "domain": 100
+        }
+      }
+    }
+  ]
+}

@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Generates Java objects according to an {@link Schema Avro Schema}.
@@ -62,6 +63,7 @@ public class Generator {
   private static final Map<Schema, Generex> generexCache = new HashMap<>();
   private static final Map<Schema, List<Object>> optionsCache = new HashMap<>();
   private static final Map<Schema, Iterator<Object>> iteratorCache = new IdentityHashMap<>();
+  private final Map<Schema, List<String>> domainStringCache = new HashMap<>();
 
   /**
    * The name to use for the top-level JSON property when specifying ARG-specific attributes.
@@ -91,6 +93,12 @@ public class Generator {
    * be used in conjunction with {@link #LENGTH_PROP}. Must be given as a string.
    */
   public static final String REGEX_PROP = "regex";
+
+  /**
+   * The name of the attribute for specifying a domain size for the domain of string values for
+   * this field.
+   */
+  public static final String DOMAIN_PROP = "domain";
 
   /**
    * The name of the attribute for specifying a prefix that generated values should begin with. Will
@@ -186,6 +194,19 @@ public class Generator {
 
   private final Schema topLevelSchema;
   private final Random random;
+  private final boolean alwaysIncludeOptionals;
+
+  /**
+   * Creates a generator out of an already-parsed {@link Schema}.
+   * @param topLevelSchema The schema to generate values for.
+   * @param random The object to use for generating randomness when producing values.
+   * @param alwaysIncludeOptionals Always generate a value for optional fields.
+   */
+  public Generator(Schema topLevelSchema, Random random, boolean alwaysIncludeOptionals) {
+    this.topLevelSchema = topLevelSchema;
+    this.random = random;
+    this.alwaysIncludeOptionals = alwaysIncludeOptionals;
+  }
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -193,8 +214,7 @@ public class Generator {
    * @param random The object to use for generating randomness when producing values.
    */
   public Generator(Schema topLevelSchema, Random random) {
-    this.topLevelSchema = topLevelSchema;
-    this.random = random;
+    this(topLevelSchema, random, false);
   }
 
   /**
@@ -204,6 +224,16 @@ public class Generator {
    */
   public Generator(String schemaString, Random random) {
     this(new Schema.Parser().parse(schemaString), random);
+  }
+
+  /**
+   * Creates a generator out of the yet-to-be-parsed Schema string.
+   * @param schemaString An Avro Schema represented as a string.
+   * @param random The object to use for generating randomness when producing values.
+   * @param alwaysIncludeOptionals Always generate a value for optional fields.
+   */
+  public Generator(String schemaString, Random random, boolean alwaysIncludeOptionals) {
+    this(new Schema.Parser().parse(schemaString), random, alwaysIncludeOptionals);
   }
 
   /**
@@ -1152,18 +1182,35 @@ public class Generator {
 
   private String generateRandomString(int length) {
     byte[] bytes = new byte[length];
+    ThreadLocalRandom tlRandom = ThreadLocalRandom.current();
     for (int i = 0; i < length; i++) {
-      bytes[i] = (byte) random.nextInt(128);
+      bytes[i] = (byte) tlRandom.nextInt(128);
     }
     return new String(bytes, StandardCharsets.US_ASCII);
   }
 
+  private String generateDomainString(Schema schema, Object domainProp, int length) {
+    int domainSz = (Integer)domainProp;
+    domainStringCache.putIfAbsent(schema, new ArrayList<>());
+    List<String> domain  = domainStringCache.get(schema);
+    while (domain.size() < domainSz) {
+      String next = generateRandomString(length);
+      domain.add(next);
+    }
+    int off = random.nextInt(domainSz);
+    return domain.get(off);
+  }
+
   private String generateString(Schema schema, Map propertiesProp) {
     Object regexProp = propertiesProp.get(REGEX_PROP);
+    Object domainProp = propertiesProp.get(DOMAIN_PROP);
 
     String result;
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
+    } else if (domainProp != null) {
+      result = generateDomainString(
+          schema, domainProp, getLengthBounds(propertiesProp).random());
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }
@@ -1189,7 +1236,13 @@ public class Generator {
 
   private Object generateUnion(Schema schema) {
     List<Schema> schemas = schema.getTypes();
-    return generateObject(schemas.get(random.nextInt(schemas.size())));
+    while (true) {
+      final Schema valueSchema = schemas.get(random.nextInt(schemas.size()));
+      if (alwaysIncludeOptionals && valueSchema.getType().equals(Schema.Type.NULL)) {
+        continue;
+      }
+      return generateObject(valueSchema);
+    }
   }
 
   private LengthBounds getLengthBounds(Map propertiesProp) {
