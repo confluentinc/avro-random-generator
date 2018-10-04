@@ -14,3 +14,7 @@ bin/
 *.ipr
 
 .DS_STORE
+
+/.settings/
+/.classpath
+/.project

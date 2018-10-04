@@ -16,6 +16,7 @@
 
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 apply plugin: 'checkstyle'
 apply plugin: 'maven'
 apply plugin: 'signing'

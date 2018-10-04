@@ -40,6 +40,9 @@ public class Main {
 
   public static final String SCHEMA_FILE_SHORT_FLAG = "-f";
   public static final String SCHEMA_FILE_LONG_FLAG = "--schema-file";
+  
+  public static final String SCHEMA_UNION_INDEX_SHORT_FLAG = "-u";
+  public static final String SCHEMA_UNION_INDEX_LONG_FLAG = "--schema-union-idx";
 
   public static final String PRETTY_SHORT_FLAG = "-p";
   public static final String PRETTY_LONG_FLAG = "--pretty";
@@ -75,6 +78,7 @@ public class Main {
    */
   public static void main(String[] args) {
     String schema = null;
+    Integer schemaIndex = null;
     String schemaFile = "-";
 
     boolean jsonFormat = PRETTY_FORMAT;
@@ -98,6 +102,10 @@ public class Main {
           schema = null;
           schemaFile = nextArg(argv, flag);
           break;
+        case SCHEMA_UNION_INDEX_SHORT_FLAG:
+        case SCHEMA_UNION_INDEX_LONG_FLAG:
+            schemaIndex = Integer.valueOf(nextArg(argv, flag));
+            break;
         case PRETTY_SHORT_FLAG:
         case PRETTY_LONG_FLAG:
           jsonFormat = PRETTY_FORMAT;
@@ -135,7 +143,7 @@ public class Main {
 
     Generator generator = null;
     try {
-      generator = getGenerator(schema, schemaFile);
+      generator = getGenerator(schema, schemaFile, schemaIndex);
     } catch (IOException ioe) {
       System.err.println("Error occurred while trying to read schema file");
       System.exit(1);
@@ -300,15 +308,15 @@ public class Main {
     System.exit(exitValue);
   }
 
-  private static Generator getGenerator(String schema, String schemaFile) throws IOException {
+  private static Generator getGenerator(String schema, String schemaFile, Integer schemaIndex) throws IOException {
     Random random = new Random();
     if (schema != null) {
-      return new Generator(schema, random);
+      return new Generator(schema, schemaIndex, random);
     } else if (!schemaFile.equals("-")) {
-      return new Generator(new File(schemaFile), random);
+      return new Generator(new File(schemaFile), schemaIndex, random);
     } else {
       System.err.println("Reading schema from stdin...");
-      return new Generator(System.in, random);
+      return new Generator(System.in, schemaIndex, random);
     }
   }
 

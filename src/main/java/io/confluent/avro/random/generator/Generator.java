@@ -185,35 +185,40 @@ public class Generator {
   public static final String ITERATION_PROP_STEP = "step";
 
   private final Schema topLevelSchema;
+  private final Integer schemaIndex;
   private final Random random;
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
    * @param topLevelSchema The schema to generate values for.
+   * @param schemaIndex in the union.
    * @param random The object to use for generating randomness when producing values.
    */
-  public Generator(Schema topLevelSchema, Random random) {
+  public Generator(Schema topLevelSchema, Integer schemaIndex, Random random) {
     this.topLevelSchema = topLevelSchema;
+    this.schemaIndex = schemaIndex;
     this.random = random;
   }
 
   /**
    * Creates a generator out of the yet-to-be-parsed Schema string.
    * @param schemaString An Avro Schema represented as a string.
+   * @param schemaIndex in the union.
    * @param random The object to use for generating randomness when producing values.
    */
-  public Generator(String schemaString, Random random) {
-    this(new Schema.Parser().parse(schemaString), random);
+  public Generator(String schemaString, Integer schemaIndex, Random random) {
+    this(new Schema.Parser().parse(schemaString), schemaIndex, random);
   }
 
   /**
    * Reads in a schema, parses it, and creates a generator for it.
    * @param schemaStream The stream that the schema is read from.
+   * @param schemaIndex in the union.
    * @param random The object to use for generating randomness when producing values.
    * @throws IOException if an error occurs while reading from the input stream.
    */
-  public Generator(InputStream schemaStream, Random random) throws IOException {
-    this(new Schema.Parser().parse(schemaStream), random);
+  public Generator(InputStream schemaStream, Integer schemaIndex, Random random) throws IOException {
+    this(new Schema.Parser().parse(schemaStream), schemaIndex, random);
   }
 
   /**
@@ -222,8 +227,8 @@ public class Generator {
    * @param random The object to use for generating randomness when producing values.
    * @throws IOException if an error occurs while reading from the schema file.
    */
-  public Generator(File schemaFile, Random random) throws IOException {
-    this(new Schema.Parser().parse(schemaFile), random);
+  public Generator(File schemaFile, Integer schemaIndex, Random random) throws IOException {
+    this(new Schema.Parser().parse(schemaFile), schemaIndex, random);
   }
 
   /**
@@ -1189,7 +1194,9 @@ public class Generator {
 
   private Object generateUnion(Schema schema) {
     List<Schema> schemas = schema.getTypes();
-    return generateObject(schemas.get(random.nextInt(schemas.size())));
+        return (schemaIndex != null && schemaIndex < schemas.size() && schemas.size() > 0) 
+                ? generateObject(schemas.get(schemaIndex))
+                : generateObject(schemas.get(random.nextInt(schemas.size())));
   }
 
   private LengthBounds getLengthBounds(Map propertiesProp) {
