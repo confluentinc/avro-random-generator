@@ -1194,7 +1194,7 @@ public class Generator {
 
   private Object generateUnion(Schema schema) {
     List<Schema> schemas = schema.getTypes();
-        return (schemaIndex != null && schemaIndex < schemas.size() && schemas.size() > 0) 
+        return (schemaIndex != null && schemaIndex < schemas.size() && schemaIndex >= 0) 
                 ? generateObject(schemas.get(schemaIndex))
                 : generateObject(schemas.get(random.nextInt(schemas.size())));
   }
