@@ -56,7 +56,8 @@ Flags:
     -j, --json:	Encode outputted data in JSON format (default)
     -o &lt;file&gt;, --output &lt;file&gt;:	Write data to the file &lt;file&gt;, or stdout if &lt;file&gt; is '-' (default is '-')
     -p, --pretty:	Output each record in prettified format (has no effect if encoding is not JSON) (default)
-    -s &lt;schema&gt;, --schema &lt;schema&gt;:	Spoof the schema &lt;schema&gt;
+    -s &lt;schema&gt;, --schema &lt;schema&gt;:	Spoof the schema &lt;schema&gt
+    -u &lt;schema-index&gt;, --schema-index &lt;schema-index&gt;:	Top schema index of schema union&gt;
 
 Source repository:
 https://github.com/confluentinc/avro-random-generator

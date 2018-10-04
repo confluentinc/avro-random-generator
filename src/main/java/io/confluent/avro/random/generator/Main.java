@@ -42,7 +42,7 @@ public class Main {
   public static final String SCHEMA_FILE_LONG_FLAG = "--schema-file";
   
   public static final String SCHEMA_UNION_INDEX_SHORT_FLAG = "-u";
-  public static final String SCHEMA_UNION_INDEX_LONG_FLAG = "--schema-union-idx";
+  public static final String SCHEMA_UNION_INDEX_LONG_FLAG = "--schema-index";
 
   public static final String PRETTY_SHORT_FLAG = "-p";
   public static final String PRETTY_LONG_FLAG = "--pretty";
@@ -215,10 +215,11 @@ public class Main {
     String header = String.format("%s: Generate random Avro data%n", PROGRAM_NAME);
 
     String summary = String.format(
-        "Usage: %s [%s <file> | %s <schema>] [%s | %s] [%s | %s] [%s <i>] [%s <file>]%n%n",
+        "Usage: %s [%s <file> | %s <schema>] [%s <schema-index>] [%s | %s] [%s | %s] [%s <i>] [%s <file>]%n%n",
         PROGRAM_NAME,
         SCHEMA_FILE_SHORT_FLAG,
         SCHEMA_SHORT_FLAG,
+        SCHEMA_UNION_INDEX_SHORT_FLAG,
         JSON_SHORT_FLAG,
         BINARY_SHORT_FLAG,
         PRETTY_SHORT_FLAG,
@@ -296,6 +297,13 @@ public class Main {
             SCHEMA_LONG_FLAG,
             separation,
             "Spoof the schema <schema>"
+        ) + String.format(
+            "%s%s <schema-index>, %s <schema>:%s%s%n",
+            indentation,
+            SCHEMA_UNION_INDEX_SHORT_FLAG,
+            SCHEMA_UNION_INDEX_LONG_FLAG,
+            separation,
+            "Top schema index of schema union"
         ) + "\n";
 
     String footer = String.format(
