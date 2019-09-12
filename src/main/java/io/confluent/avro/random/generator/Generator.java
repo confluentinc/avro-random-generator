@@ -119,6 +119,12 @@ public class Generator {
    * specified.
    */
   public static final String OPTIONS_PROP = "options";
+
+  /**
+   * The name of the attribute for specifying specific position which should be select from the union.
+   */
+  public static final String POSITION_PROP = "position";
+
   /**
    * The name of a file from which to read specific values to generate for the given schema. Must
    * be given as a string.
@@ -364,10 +370,10 @@ public class Generator {
    * </table>
    */
   public Object generate() {
-    return generateObject(topLevelSchema);
+    return generateObject(topLevelSchema, Collections.emptyMap());
   }
 
-  private Object generateObject(Schema schema) {
+  private Object generateObject(Schema schema, Map<String, Object> globalArgs) {
     Map propertiesProp = getProperties(schema).orElse(Collections.emptyMap());
     if (propertiesProp.containsKey(OPTIONS_PROP)) {
       return generateOption(schema, propertiesProp);
@@ -403,7 +409,7 @@ public class Generator {
       case STRING:
         return generateString(schema, propertiesProp);
       case UNION:
-        return generateUnion(schema);
+        return generateUnion(schema, globalArgs);
       default:
         throw new RuntimeException("Unrecognized schema type: " + schema.getType());
     }
@@ -1077,7 +1083,7 @@ public class Generator {
     int length = getLengthBounds(propertiesProp).random();
     Collection<Object> result = new ArrayList<>(length);
     for (int i = 0; i < length; i++) {
-      result.add(generateObject(schema.getElementType()));
+      result.add(generateObject(schema.getElementType(), Collections.emptyMap()));
     }
     return result;
   }
@@ -1275,7 +1281,7 @@ public class Generator {
     Object keyProp = propertiesProp.get(KEYS_PROP);
     if (keyProp == null) {
       for (int i = 0; i < length; i++) {
-        result.put(generateRandomString(1), generateObject(schema.getValueType()));
+        result.put(generateRandomString(1), generateObject(schema.getValueType(), Collections.emptyMap()));
       }
     } else if (keyProp instanceof Map) {
       Map keyPropMap = (Map) keyProp;
@@ -1284,13 +1290,13 @@ public class Generator {
           optionsCache.put(schema, parseOptions(Schema.create(Schema.Type.STRING), keyPropMap));
         }
         for (int i = 0; i < length; i++) {
-          result.put(generateOption(schema, keyPropMap), generateObject(schema.getValueType()));
+          result.put(generateOption(schema, keyPropMap), generateObject(schema.getValueType(), Collections.emptyMap()));
         }
       } else {
         for (int i = 0; i < length; i++) {
           result.put(
               generateString(schema, keyPropMap),
-              generateObject(schema.getValueType())
+              generateObject(schema.getValueType(), Collections.emptyMap())
           );
         }
       }
@@ -1310,7 +1316,8 @@ public class Generator {
   private GenericRecord generateRecord(Schema schema) {
     GenericRecordBuilder builder = new GenericRecordBuilder(schema);
     for (Schema.Field field : schema.getFields()) {
-      builder.set(field, generateObject(field.schema()));
+      Map<String, Object> args = (Map<String, Object>) field.getObjectProp(ARG_PROPERTIES_PROP);
+      builder.set(field, generateObject(field.schema(), args == null ? Collections.emptyMap(): args));
     }
     return builder.build();
   }
@@ -1365,9 +1372,12 @@ public class Generator {
     return prefix + result + suffix;
   }
 
-  private Object generateUnion(Schema schema) {
+  private Object generateUnion(Schema schema, Map<String, Object> args) {
     List<Schema> schemas = schema.getTypes();
-    return generateObject(schemas.get(random.nextInt(schemas.size())));
+    Integer position = null;
+    if(args != null) { position = (Integer) args.get(POSITION_PROP); }
+    if(position == null) position = random.nextInt(schemas.size());
+    return generateObject(schemas.get(position), Collections.emptyMap());
   }
 
   private LengthBounds getLengthBounds(Map propertiesProp) {

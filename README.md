@@ -109,6 +109,7 @@ spoofed maps.
 + __odds:__ A JSON float between 0.0 and 1.0 that, when specified with
 a boolean schema, specifies the likelihood that the generated value is
 `true`.
++ __position:__ A Integer value that indicate the position of the union to select.
 
 The following schemas support the following annotations:
 
@@ -177,6 +178,7 @@ string
 
 #### union
 + options
++ position
 
 ### Example schemas
 
@@ -517,6 +519,9 @@ to work with it properly due, to the relative paths of the files.
     },
     {
       "name": "union_field",
+      "arg.properties": {
+        "position": 2
+      }
       "type": [
         "null",
         {
