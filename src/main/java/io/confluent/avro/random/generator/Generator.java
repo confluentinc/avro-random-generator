@@ -1287,10 +1287,9 @@ public class Generator {
           result.put(generateOption(schema, keyPropMap), generateObject(schema.getValueType()));
         }
       } else {
-        int keyLength = getLengthBounds(keyPropMap.get(LENGTH_PROP)).random();
         for (int i = 0; i < length; i++) {
           result.put(
-              generateRandomString(keyLength),
+              generateString(schema, keyPropMap),
               generateObject(schema.getValueType())
           );
         }
