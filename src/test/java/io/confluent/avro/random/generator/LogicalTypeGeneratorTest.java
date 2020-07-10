@@ -166,4 +166,16 @@ public class LogicalTypeGeneratorTest {
     );
   }
 
+  @Test
+  public void shouldCreateValidTime() {
+    String schema = ResourceUtil.loadContent("test-schemas/logical-types/time.json");
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    final GenericRecord generated = (GenericRecord) generator.generate();
+
+    assertNotNull(generated.get("time"));
+    assertTrue("Invalid time: " + generated.get("time"),
+            Validations.isValidTime(generated.get("time").toString())
+    );
+  }
+
 }

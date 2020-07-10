@@ -6,10 +6,15 @@ import org.apache.commons.text.RandomStringGenerator;
 import scala.collection.JavaConverters;
 import com.telefonica.baikal.utils.Validations;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -97,7 +102,14 @@ public class LogicalTypeGenerator {
                 Date durationStart = new Date();
                 Date durationEnd = new Date(durationStart.getTime() + TimeUnit.DAYS.toMillis(MAX_DURATION_DAYS));
                 return DurationFormatUtils.formatPeriodISO(durationStart.getTime(), dateBetween(durationStart, durationEnd).getTime());
-            case "time": return null;
+            case "time":
+                LocalDateTime time = LocalDateTime.of(LocalDate.now(),
+                        LocalTime.of(
+                                random.nextInt(24), random.nextInt(60),
+                                random.nextInt(60), random.nextInt(999999999 + 1)
+                        )
+                );
+                return DateTimeFormatter.ISO_TIME.format(time);
             case "decimal-string": return null;
             case "phone-number":
                 String regionCode = Optional.ofNullable(propertiesProp.get(REGION_CODE_PROP))
