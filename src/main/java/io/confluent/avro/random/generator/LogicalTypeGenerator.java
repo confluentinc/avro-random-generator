@@ -1,19 +1,30 @@
 package io.confluent.avro.random.generator;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import org.apache.commons.text.RandomStringGenerator;
+import scala.collection.JavaConverters;
+import scala.collection.convert.WrapAsJava$;
+import com.telefonica.baikal.utils.Validations;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.commons.text.CharacterPredicates.DIGITS;
 
 public class LogicalTypeGenerator {
 
     static final DateFormat ISO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * The name of the attribute for specifying a region code for phone-number logical-types. Must be
+     * given as s string.
+     */
+    public static final String REGION_CODE_PROP = "region-code";
 
     /**
      * The name of the attribute for specifying a possible range of values of iso-date strings. Must be
@@ -31,9 +42,22 @@ public class LogicalTypeGenerator {
      */
     public static final String DATE_RANGE_PROP_END = "end";
 
+    private static final Random random = new Random();
+
+    private static final RandomStringGenerator digitsGenerator = new RandomStringGenerator.Builder()
+            .withinRange('0', 'z')
+            .filteredBy(DIGITS)
+            .build();
+
+    private static final int IMEI_LENGTH = 14;
+    private static final int IMSI_LENGTH = 15 - 3;
+
+    private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+
     static {
         ISO_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
+
 
     private static Date dateBetween(Date startInclusive, Date endExclusive) {
         long startMillis = startInclusive.getTime();
@@ -64,9 +88,20 @@ public class LogicalTypeGenerator {
         }
     }
 
-
     public static Object random(String logicalType, Map propertiesProp) {
         switch (logicalType) {
+            case "datetime": return null;
+            case "duration": return null;
+            case "time": return null;
+            case "decimal-string": return null;
+            case "phone-number":
+                String regionCode = Optional.ofNullable(propertiesProp.get(REGION_CODE_PROP))
+                        .map(Object::toString)
+                        .orElseGet(() -> {
+                            List<String> regions = new ArrayList<>(phoneNumberUtil.getSupportedRegions());
+                            return regions.get(random.nextInt(regions.size()));
+                        });
+                return phoneNumberUtil.format(phoneNumberUtil.getExampleNumber(regionCode), PhoneNumberUtil.PhoneNumberFormat.E164);
             case "iso-date":
                 Object dateRangeProp = propertiesProp.get(DATE_RANGE_PROP);
                 if (dateRangeProp != null) {
@@ -95,8 +130,33 @@ public class LogicalTypeGenerator {
                 return Optional.of(getRandomDate(logicalType, Optional.empty(), Optional.empty()))
                         .map(ISO_DATE_FORMAT::format)
                         .get();
+            case "country-code-numeric":
+                List<String> numericCodes = JavaConverters.seqAsJavaList(Validations.countryCodeNumeric());
+                return numericCodes.get(random.nextInt(numericCodes.size()));
+            case "country-code-alpha-2":
+                List<String> alpha2Codes = JavaConverters.seqAsJavaList(Validations.countryCode());
+                return alpha2Codes.get(random.nextInt(alpha2Codes.size()));
+            case "country-code-alpha-3":
+                List<String> alpha3Codes = JavaConverters.seqAsJavaList(Validations.countryCode3());
+                return alpha3Codes.get(random.nextInt(alpha3Codes.size()));
+            case "currency-code-alpha":
+                List<String> alphaCurrency = JavaConverters.seqAsJavaList(Validations.currencyCode().toSeq());
+                return alphaCurrency.get(random.nextInt(alphaCurrency.size()));
+            case "currency-code-numeric":
+                List<Object> numericCurrencyCode = JavaConverters
+                        .seqAsJavaList(Validations.currencyCodeNumeric().toSeq());
+                return (numericCurrencyCode
+                        .get(random.nextInt(numericCurrencyCode.size()))
+                        .toString());
+            case "imei":
+                return digitsGenerator.generate(LogicalTypeGenerator.IMEI_LENGTH);
+            case "imsi":
+                List<String> mccs = JavaConverters.seqAsJavaList(Validations.mccList());
+                String mcc = mccs.get(random.nextInt(mccs.size()));
+                return mcc + digitsGenerator.generate(LogicalTypeGenerator.IMSI_LENGTH);
             default:
                 throw new IllegalArgumentException("Unsupported logical type: " + logicalType);
         }
     }
+
 }

@@ -1,0 +1,15 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "imsi",
+      "type": {
+        "type": "string",
+        "logicalType": "imsi"
+      }
+    }
+  ]
+}
+}
