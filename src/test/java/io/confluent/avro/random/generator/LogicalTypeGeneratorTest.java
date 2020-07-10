@@ -154,4 +154,16 @@ public class LogicalTypeGeneratorTest {
     );
   }
 
+  @Test
+  public void shouldCreateValidDuration() {
+    String schema = ResourceUtil.loadContent("test-schemas/logical-types/duration.json");
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    final GenericRecord generated = (GenericRecord) generator.generate();
+
+    assertNotNull(generated.get("call_duration"));
+    assertTrue("Invalid call_duration: " + generated.get("call_duration"),
+            Validations.isValidDuration(generated.get("call_duration").toString())
+    );
+  }
+
 }

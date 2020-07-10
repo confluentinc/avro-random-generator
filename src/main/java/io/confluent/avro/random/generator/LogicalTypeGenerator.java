@@ -1,9 +1,9 @@
 package io.confluent.avro.random.generator;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.text.RandomStringGenerator;
 import scala.collection.JavaConverters;
-import scala.collection.convert.WrapAsJava$;
 import com.telefonica.baikal.utils.Validations;
 
 import java.text.DateFormat;
@@ -52,6 +52,8 @@ public class LogicalTypeGenerator {
     private static final int IMEI_LENGTH = 14;
     private static final int IMSI_LENGTH = 15 - 3;
 
+    private static final int MAX_DURATION_DAYS = 1;
+
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
     static {
@@ -91,7 +93,10 @@ public class LogicalTypeGenerator {
     public static Object random(String logicalType, Map propertiesProp) {
         switch (logicalType) {
             case "datetime": return null;
-            case "duration": return null;
+            case "duration":
+                Date durationStart = new Date();
+                Date durationEnd = new Date(durationStart.getTime() + TimeUnit.DAYS.toMillis(MAX_DURATION_DAYS));
+                return DurationFormatUtils.formatPeriodISO(durationStart.getTime(), dateBetween(durationStart, durationEnd).getTime());
             case "time": return null;
             case "decimal-string": return null;
             case "phone-number":
@@ -107,14 +112,14 @@ public class LogicalTypeGenerator {
                 if (dateRangeProp != null) {
                     if (dateRangeProp instanceof Map) {
                         Map dateRangeProps = (Map) dateRangeProp;
-                        Date start = getRandomDate(logicalType,
+                        Date isoStart = getRandomDate(logicalType,
                                 Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_START)).map(Object::toString),
                                         Optional.empty());
-                        Date end = getRandomDate(logicalType,
+                        Date isoEnd = getRandomDate(logicalType,
                                 Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_END)).map(Object::toString),
                                 Optional.empty());
 
-                        if (start.after(end)) {
+                        if (isoStart.after(isoEnd)) {
                             throw new RuntimeException(String.format(
                                     "'%s' field must be strictly less than '%s' field in %s property",
                                     DATE_RANGE_PROP_START,
@@ -122,7 +127,7 @@ public class LogicalTypeGenerator {
                                     DATE_RANGE_PROP
                             ));
                         }
-                        return Optional.of(dateBetween(start, end))
+                        return Optional.of(dateBetween(isoStart, isoEnd))
                                 .map(ISO_DATE_FORMAT::format)
                                 .get();
                     }

@@ -1,0 +1,13 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    { "name": "call_duration",
+      "type": {
+        "type": "string",
+        "logicalType": "duration"
+      }
+    }
+  ]
+}
