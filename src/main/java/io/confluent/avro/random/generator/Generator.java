@@ -34,6 +34,7 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
+import org.apache.commons.text.RandomStringGenerator;
 
 import java.io.EOFException;
 import java.io.File;
@@ -42,22 +43,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Generates Java objects according to an {@link Schema Avro Schema}.
@@ -97,6 +87,12 @@ public class Generator {
    * be used in conjunction with {@link #LENGTH_PROP}. Must be given as a string.
    */
   public static final String REGEX_PROP = "regex";
+
+  /**
+   * The encoding of the type; currently only "uuid" is supported. Must be
+   * given as a string.
+   */
+  public static final String KIND_PROD = "kind";
 
   /**
    * The name of the attribute for specifying a prefix that generated values should begin with. Will
@@ -207,6 +203,11 @@ public class Generator {
   private final Schema topLevelSchema;
   private final Random random;
   private final long generation;
+  private final char[][] randomStringRanges = {{'a', 'z'}, {'0', '9'}, {'A', 'Z'}};
+  private final RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder()
+          .withinRange(randomStringRanges)
+          .selectFrom("_- ".toCharArray())
+          .build();
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -492,7 +493,7 @@ public class Generator {
   private List<Object> parseOptions(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, OPTIONS_PROP,
-        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP
+        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP, KIND_PROD
     );
 
     Object optionsProp = propertiesProp.get(OPTIONS_PROP);
@@ -901,7 +902,7 @@ public class Generator {
   private Iterator<Object> parseIterations(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, ITERATION_PROP,
-        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP
+        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP, KIND_PROD
     );
 
     Object iterationProp = propertiesProp.get(ITERATION_PROP);
@@ -1335,20 +1336,31 @@ public class Generator {
     return generexCache.get(schema).random(lengthBounds.min(), lengthBounds.max() - 1);
   }
 
-  private String generateRandomString(int length) {
-    byte[] bytes = new byte[length];
-    for (int i = 0; i < length; i++) {
-      bytes[i] = (byte) random.nextInt(128);
+  private String generateKindString(Schema schema, Object kindProp) {
+    if (!(kindProp instanceof String)) {
+      throw new RuntimeException(String.format("%s property must be a string", KIND_PROD));
     }
-    return new String(bytes, StandardCharsets.US_ASCII);
+    switch ((String) kindProp) {
+      case "uuid":
+        return UUID.randomUUID().toString();
+      default:
+        throw new RuntimeException(String.format("Unknown %s property: %s", KIND_PROD, kindProp));
+    }
+  }
+
+  private String generateRandomString(int length) {
+    return randomStringGenerator.generate(length);
   }
 
   private String generateString(Schema schema, Map propertiesProp) {
     Object regexProp = propertiesProp.get(REGEX_PROP);
+    Object kindProp = propertiesProp.get(KIND_PROD);
 
     String result;
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
+    } else if (kindProp != null) {
+      result = generateKindString(schema, kindProp);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }
