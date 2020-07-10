@@ -20,6 +20,8 @@ import com.mifmif.common.regex.Generex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.telefonica.baikal.avro.types.CustomLogicalTypes;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -45,7 +47,6 @@ import java.io.InputStream;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import java.util.*;
 
@@ -203,10 +204,12 @@ public class Generator {
   private final Schema topLevelSchema;
   private final Random random;
   private final long generation;
-  private final char[][] randomStringRanges = {{'a', 'z'}, {'0', '9'}, {'A', 'Z'}};
+  private final String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+          + "0123456789"
+          + "abcdefghijklmnopqrstuvxyz"
+          + "-_ !?,.";
   private final RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder()
-          .withinRange(randomStringRanges)
-          .selectFrom("_- ".toCharArray())
+          .selectFrom(alphaNumericString.toCharArray())
           .build();
 
   /**
@@ -258,6 +261,10 @@ public class Generator {
   }
 
   public static class Builder {
+
+    static {
+      CustomLogicalTypes.register();
+    }
 
     private Schema topLevelSchema;
     private Random random;
@@ -1353,14 +1360,18 @@ public class Generator {
   }
 
   private String generateString(Schema schema, Map propertiesProp) {
+
     Object regexProp = propertiesProp.get(REGEX_PROP);
     Object kindProp = propertiesProp.get(KIND_PROD);
+    LogicalType logicalType = schema.getLogicalType();
 
     String result;
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
     } else if (kindProp != null) {
       result = generateKindString(schema, kindProp);
+    } else if (logicalType != null) {
+      result = (String) LogicalTypeGenerator.random(logicalType.getName(), propertiesProp);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }

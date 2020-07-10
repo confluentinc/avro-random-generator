@@ -73,6 +73,7 @@ public class Main {
    * {@link Generator} object to produce randomized output according to the parsed options.
    */
   public static void main(String[] args) {
+
     String schema = null;
     String schemaFile = "-";
 

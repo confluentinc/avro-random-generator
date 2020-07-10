@@ -1,0 +1,15 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "day_dt",
+        "type": {
+          "logicalType": "iso-date",
+          "type": "string"
+        },
+        "doc": "Year, month and day of the data (snapshot of the Customer data)"
+      }
+    ]
+}

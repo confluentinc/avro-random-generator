@@ -70,7 +70,11 @@ clean.doLast {
 }
 
 repositories {
+    String baikalRepo = System.getenv('BAIKAL_PUBLIC_MAVEN')
     jcenter()
+    maven {
+        url 'https://mymavenrepo.com/repo/J4yLiGooDXJRjOOFrWjB'
+    }
     maven {
         url 'https://nexus.confluent.io/repository/maven-snapshots/'
     }
@@ -156,6 +160,8 @@ dependencies {
     compile group: 'com.github.mifmif', name: 'generex', version: '1.0.2'
 
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
+
+    compile group: 'com.telefonica.baikal', name: 'spark-commons_2.12', version: '0.5.0-BETA9'
 
     ////////////////////////////////////////////////////////////////
 
