@@ -3,10 +3,8 @@ package io.confluent.avro.random.generator;
 import com.telefonica.baikal.utils.Validations;
 import io.confluent.avro.random.generator.util.ResourceUtil;
 import org.apache.avro.generic.GenericRecord;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import java.text.ParseException;
-import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -20,11 +18,10 @@ public class LogicalTypeGeneratorTest {
     final GenericRecord generated = (GenericRecord) generator.generate();
 
     assertNotNull(generated.get("day_dt"));
-    try {
-      LogicalTypeGenerator.ISO_DATE_FORMAT.parse((String) generated.get("day_dt"));
-    } catch (ParseException e) {
-      fail("day_dt is not in valid iso-date format (yyyy-MM-dd): " + generated.get("day_dt").toString());
-    }
+    assertNotNull(generated.get("day_dt"));
+    assertTrue("Invalid iso-date: " + generated.get("day_dt"),
+            Validations.isValidDate(generated.get("day_dt").toString())
+    );
   }
 
   @Test
@@ -34,14 +31,23 @@ public class LogicalTypeGeneratorTest {
     final GenericRecord generated = (GenericRecord) generator.generate();
 
     assertNotNull(generated.get("day_dt"));
-    try {
-      Date start = LogicalTypeGenerator.ISO_DATE_FORMAT.parse("2020-01-01");
-      Date end = LogicalTypeGenerator.ISO_DATE_FORMAT.parse("2020-02-01");
-      Date date = LogicalTypeGenerator.ISO_DATE_FORMAT.parse((String) generated.get("day_dt"));
-      assertTrue(date.after(start) && date.before(end));
-    } catch (ParseException e) {
-      fail("day_dt is not in valid iso-date format (yyyy-MM-dd): " + generated.get("day_dt").toString());
-    }
+    assertNotNull(generated.get("day_dt"));
+    assertTrue("Invalid iso-date: " + generated.get("day_dt"),
+            Validations.isValidDate(generated.get("day_dt").toString())
+    );
+  }
+
+
+  @Test
+  public void shouldCreateValidDateTime() {
+    String schema = ResourceUtil.loadContent("test-schemas/logical-types/datetime.json");
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    final GenericRecord generated = (GenericRecord) generator.generate();
+
+    assertNotNull(generated.get("interaction_tm"));
+    assertTrue("Invalid datetime: " + generated.get("interaction_tm"),
+            Validations.isValidDatetime(generated.get("interaction_tm").toString())
+    );
   }
 
   @Test
@@ -175,6 +181,19 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(generated.get("time"));
     assertTrue("Invalid time: " + generated.get("time"),
             Validations.isValidTime(generated.get("time").toString())
+    );
+  }
+
+  // needs spark
+  @Ignore
+  public void shouldCreateValidDecimalString() {
+    String schema = ResourceUtil.loadContent("test-schemas/logical-types/decimal-string.json");
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    final GenericRecord generated = (GenericRecord) generator.generate();
+
+    assertNotNull(generated.get("number"));
+    assertTrue("Invalid decimal-string: " + generated.get("number"),
+            Validations.tryParseDecimal(generated.get("number").toString()).nonEmpty()
     );
   }
 

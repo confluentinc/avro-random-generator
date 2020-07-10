@@ -1,0 +1,15 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "interaction_tm",
+        "type": {
+          "type": "string",
+          "logicalType": "datetime"
+        },
+        "doc": "Year, month, day and time of the interaction (contact action)"
+      }
+    ]
+}

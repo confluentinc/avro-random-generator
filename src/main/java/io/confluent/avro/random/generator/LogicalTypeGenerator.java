@@ -10,15 +10,13 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static org.apache.commons.text.CharacterPredicates.DIGITS;
 
 public class LogicalTypeGenerator {
@@ -60,10 +58,6 @@ public class LogicalTypeGenerator {
     private static final int MAX_DURATION_DAYS = 1;
 
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-
-    static {
-        ISO_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
 
 
     private static Date dateBetween(Date startInclusive, Date endExclusive) {
@@ -110,7 +104,9 @@ public class LogicalTypeGenerator {
                         )
                 );
                 return DateTimeFormatter.ISO_TIME.format(time);
-            case "decimal-string": return null;
+            case "decimal-string":
+                Double decimalNumber = random.nextDouble();
+                return String.format("%.3f", decimalNumber);
             case "phone-number":
                 String regionCode = Optional.ofNullable(propertiesProp.get(REGION_CODE_PROP))
                         .map(Object::toString)
