@@ -164,10 +164,12 @@ dependencies {
     compile group: 'com.telefonica.baikal', name: 'spark-commons_2.12', version: '0.5.0-BETA10'
 
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '8.11.5'
-    
+
     compile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
 
     ////////////////////////////////////////////////////////////////
+
+    testCompile group: 'org.apache.spark', name: 'spark-sql_2.12', version: '2.4.4'
 
     testCompile group: 'commons-validator', name: 'commons-validator', version: '1.6'
 

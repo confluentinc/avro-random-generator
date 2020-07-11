@@ -126,8 +126,7 @@ public class LogicalTypeGenerator {
         );
         return DateTimeFormatter.ISO_TIME.format(time);
       case "decimal-string":
-        Double decimalNumber = random.nextDouble();
-        return String.format("%.3f", decimalNumber);
+        return String.format(Locale.US, "%.8f", random.nextDouble());
       case "phone-number":
         String regionCode = Optional.ofNullable(propertiesProp.get(REGION_CODE_PROP))
             .map(Object::toString)

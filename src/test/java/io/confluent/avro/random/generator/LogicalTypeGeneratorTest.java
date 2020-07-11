@@ -168,8 +168,7 @@ public class LogicalTypeGeneratorTest {
     assertTrue("Invalid time: " + value, Validations.isValidTime(value));
   }
 
-  // needs spark
-  @Ignore
+  @Test
   public void shouldCreateValidDecimalString() {
     GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/decimal-string.json");
 
