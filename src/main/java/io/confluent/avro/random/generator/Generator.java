@@ -37,6 +37,7 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.commons.text.RandomStringGenerator;
+import org.apache.commons.text.TextRandomProvider;
 
 import java.io.EOFException;
 import java.io.File;
@@ -196,7 +197,7 @@ public class Generator {
   static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
 
   private final Schema topLevelSchema;
-  private final Random random;
+  private Random random;
   private final long generation;
   private final String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
           + "0123456789"
@@ -204,6 +205,7 @@ public class Generator {
           + "-_ !?,.";
   private final RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder()
           .selectFrom(alphaNumericString.toCharArray())
+          .usingRandom(max -> random.nextInt(max))
           .build();
 
   /**
@@ -1330,7 +1332,7 @@ public class Generator {
       if (!(regexProp instanceof String)) {
         throw new RuntimeException(String.format("%s property must be a string", REGEX_PROP));
       }
-      generexCache.put(schema, new Generex((String) regexProp));
+      generexCache.put(schema, new Generex((String) regexProp, random));
     }
     // Generex.random(low, high) generates in range [low, high]; we want [low, high), so subtract
     // 1 from maxLength
@@ -1380,8 +1382,8 @@ public class Generator {
   private Object generateUnion(Schema schema, Map<String, Object> args) {
     List<Schema> schemas = schema.getTypes();
     Integer position = null;
-    if(args != null) { position = (Integer) args.get(POSITION_PROP); }
-    if(position == null) position = random.nextInt(schemas.size());
+    if (args != null) position = (Integer) args.get(POSITION_PROP);
+    if (position == null) position = random.nextInt(schemas.size());
     return generateObject(schemas.get(position), Collections.emptyMap());
   }
 
