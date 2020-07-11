@@ -2,7 +2,7 @@ package io.confluent.avro.random.generator;
 
 import com.github.javafaker.Faker;
 
-import java.util.UUID;
+import java.util.Random;
 
 public class KindGenerator {
 
@@ -11,10 +11,13 @@ public class KindGenerator {
    */
   public static final String KIND_PROP = "kind";
 
+  private Faker faker;
 
-  private static final Faker faker = new Faker();
+  KindGenerator(Random random) {
+    this.faker = new Faker(random);
+  }
 
-  public static String random(Object kindProp) {
+  public String random(Object kindProp) {
 
     if (!(kindProp instanceof String)) {
       throw new RuntimeException(String.format("%s property must be a string", KIND_PROP));

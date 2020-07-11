@@ -194,19 +194,19 @@ public class Generator {
    */
   public static final String ITERATION_PROP_INITIAL = "initial";
 
-  static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
+  public static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
+
+  private static final String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      + "0123456789"
+      + "abcdefghijklmnopqrstuvxyz"
+      + "-_ !?,.";
 
   private final Schema topLevelSchema;
-  private Random random;
+  private final Random random;
   private final long generation;
-  private final String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          + "0123456789"
-          + "abcdefghijklmnopqrstuvxyz"
-          + "-_ !?,.";
-  private final RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder()
-          .selectFrom(alphaNumericString.toCharArray())
-          .usingRandom(max -> random.nextInt(max))
-          .build();
+  private final RandomStringGenerator randomStringGenerator;
+  private final KindGenerator kindGenerator;
+  private final LogicalTypeGenerator logicalTypeGenerator;
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -222,6 +222,12 @@ public class Generator {
     this.topLevelSchema = topLevelSchema;
     this.random = random;
     this.generation = generation;
+    this.randomStringGenerator = new RandomStringGenerator.Builder()
+        .selectFrom(alphaNumericString.toCharArray())
+        .usingRandom(random::nextInt)
+        .build();
+    this.kindGenerator = new KindGenerator(random);
+    this.logicalTypeGenerator = new LogicalTypeGenerator(random);
   }
 
   /**
@@ -1353,9 +1359,9 @@ public class Generator {
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
     } else if (kindProp != null) {
-      result = KindGenerator.random(kindProp);
+      result = kindGenerator.random(kindProp);
     } else if (logicalType != null) {
-      result = LogicalTypeGenerator.random(logicalType.getName(), propertiesProp);
+      result = logicalTypeGenerator.random(logicalType.getName(), propertiesProp);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }

@@ -6,7 +6,6 @@ import org.apache.commons.text.RandomStringGenerator;
 import scala.collection.JavaConverters;
 import com.telefonica.baikal.utils.Validations;
 
-import java.security.SecureRandom;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -40,13 +39,6 @@ public class LogicalTypeGenerator {
    */
   public static final String DATE_RANGE_PROP_END = "end";
 
-  private static final Random random = new SecureRandom();
-
-  private static final RandomStringGenerator digitsGenerator = new RandomStringGenerator.Builder()
-      .withinRange('0', 'z')
-      .filteredBy(DIGITS)
-      .build();
-
   private static final int IMEI_LENGTH = 14;
   private static final int IMSI_LENGTH = 15 - 3;
 
@@ -60,7 +52,6 @@ public class LogicalTypeGenerator {
   private static final String DEFAULT_START_DATE_TIME = DEFAULT_START_DATE + "T00:00:00Z";
   private static final String DEFAULT_END_DATE_TIME = DEFAULT_END_DATE + "T00:00:00Z";
 
-
   private static Date dateBetween(Date startInclusive, Date endExclusive) {
     long startMillis = startInclusive.getTime();
     long endMillis = endExclusive.getTime();
@@ -71,7 +62,19 @@ public class LogicalTypeGenerator {
     return new Date(randomMillisSinceEpoch);
   }
 
-  public static String random(String logicalType, Map propertiesProp) {
+  private final Random random;
+  private final RandomStringGenerator digitsGenerator;
+
+  LogicalTypeGenerator(Random random) {
+    this.random = random;
+    this.digitsGenerator = new RandomStringGenerator.Builder()
+        .withinRange('0', 'z')
+        .filteredBy(DIGITS)
+        .usingRandom(random::nextInt)
+        .build();
+  }
+
+  public String random(String logicalType, Map propertiesProp) {
     switch (logicalType) {
       case "datetime":
         Map dateRangeProps = Optional.ofNullable(propertiesProp.get(DATE_RANGE_PROP))
