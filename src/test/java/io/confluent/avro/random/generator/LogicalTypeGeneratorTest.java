@@ -6,16 +6,11 @@ import org.apache.avro.generic.GenericRecord;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static io.confluent.avro.random.generator.util.ResourceUtil.generateRecordWithSchema;
 import static org.junit.Assert.*;
 
 
 public class LogicalTypeGeneratorTest {
-
-  private static GenericRecord generateRecordWithSchema(String path) {
-    String schema = ResourceUtil.loadContent(path);
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    return (GenericRecord) generator.generate();
-  }
 
   @Test
   public void shouldCreateValidISODate() {

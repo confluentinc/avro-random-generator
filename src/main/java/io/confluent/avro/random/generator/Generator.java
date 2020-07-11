@@ -90,12 +90,6 @@ public class Generator {
   public static final String REGEX_PROP = "regex";
 
   /**
-   * The encoding of the type; currently only "uuid" is supported. Must be
-   * given as a string.
-   */
-  public static final String KIND_PROD = "kind";
-
-  /**
    * The name of the attribute for specifying a prefix that generated values should begin with. Will
    * be prepended to the beginning of any string values generated. Can be used in conjunction with
    * {@link #SUFFIX_PROP}.
@@ -500,7 +494,7 @@ public class Generator {
   private List<Object> parseOptions(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, OPTIONS_PROP,
-        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP, KIND_PROD
+        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP, KindGenerator.KIND_PROP
     );
 
     Object optionsProp = propertiesProp.get(OPTIONS_PROP);
@@ -909,7 +903,7 @@ public class Generator {
   private Iterator<Object> parseIterations(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, ITERATION_PROP,
-        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP, KIND_PROD
+        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP, KindGenerator.KIND_PROP
     );
 
     Object iterationProp = propertiesProp.get(ITERATION_PROP);
@@ -1343,18 +1337,6 @@ public class Generator {
     return generexCache.get(schema).random(lengthBounds.min(), lengthBounds.max() - 1);
   }
 
-  private String generateKindString(Schema schema, Object kindProp) {
-    if (!(kindProp instanceof String)) {
-      throw new RuntimeException(String.format("%s property must be a string", KIND_PROD));
-    }
-    switch ((String) kindProp) {
-      case "uuid":
-        return UUID.randomUUID().toString();
-      default:
-        throw new RuntimeException(String.format("Unknown %s property: %s", KIND_PROD, kindProp));
-    }
-  }
-
   private String generateRandomString(int length) {
     return randomStringGenerator.generate(length);
   }
@@ -1362,16 +1344,16 @@ public class Generator {
   private String generateString(Schema schema, Map propertiesProp) {
 
     Object regexProp = propertiesProp.get(REGEX_PROP);
-    Object kindProp = propertiesProp.get(KIND_PROD);
+    Object kindProp = propertiesProp.get(KindGenerator.KIND_PROP);
     LogicalType logicalType = schema.getLogicalType();
 
     String result;
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
     } else if (kindProp != null) {
-      result = generateKindString(schema, kindProp);
+      result = KindGenerator.random(kindProp);
     } else if (logicalType != null) {
-      result = (String) LogicalTypeGenerator.random(logicalType.getName(), propertiesProp);
+      result = LogicalTypeGenerator.random(logicalType.getName(), propertiesProp);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }

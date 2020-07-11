@@ -1,6 +1,8 @@
 package io.confluent.avro.random.generator.util;
 
+import io.confluent.avro.random.generator.Generator;
 import io.confluent.avro.random.generator.GeneratorTest;
+import org.apache.avro.generic.GenericRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,5 +33,11 @@ public final class ResourceUtil {
     } catch (final IOException ioe) {
       throw new RuntimeException("failed to find test test-schema " + filePath, ioe);
     }
+  }
+
+  public static GenericRecord generateRecordWithSchema(String path) {
+    String schema = ResourceUtil.loadContent(path);
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    return (GenericRecord) generator.generate();
   }
 }
