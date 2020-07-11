@@ -6,7 +6,7 @@ import org.apache.commons.text.RandomStringGenerator;
 import scala.collection.JavaConverters;
 import com.telefonica.baikal.utils.Validations;
 
-import java.sql.Time;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,13 +15,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static java.time.format.DateTimeFormatter.*;
 import static org.apache.commons.text.CharacterPredicates.DIGITS;
 
 public class LogicalTypeGenerator {
-
-    static final DateFormat ISO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * The name of the attribute for specifying a region code for phone-number logical-types. Must be
@@ -45,7 +44,7 @@ public class LogicalTypeGenerator {
      */
     public static final String DATE_RANGE_PROP_END = "end";
 
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     private static final RandomStringGenerator digitsGenerator = new RandomStringGenerator.Builder()
             .withinRange('0', 'z')
@@ -59,6 +58,12 @@ public class LogicalTypeGenerator {
 
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
+    private static final String DEFAULT_START_DATE = "2019-01-01";
+    private static final String DEFAULT_END_DATE = String.format("%s-12-31", LocalDate.now().getYear());
+
+    private static final String DEFAULT_START_DATE_TIME = DEFAULT_START_DATE + "T00:00:00Z";
+    private static final String DEFAULT_END_DATE_TIME = DEFAULT_END_DATE + "T00:00:00Z";
+
 
     private static Date dateBetween(Date startInclusive, Date endExclusive) {
         long startMillis = startInclusive.getTime();
@@ -70,28 +75,45 @@ public class LogicalTypeGenerator {
         return new Date(randomMillisSinceEpoch);
     }
 
-    private static Date getRandomDate(String logicalType, Optional<String> expected, Optional<Date> since) {
-        switch (logicalType) {
-            case "iso-date":
-                return expected.map(ex -> {
-                    try {
-                        return ISO_DATE_FORMAT.parse(ex);
-                    } catch (ParseException e) {
-                        throw new IllegalArgumentException("Unsupported iso-date range format: " + ex);
-                    }
-                }).orElseGet(() -> since.map(start -> {
-                    long aDay = TimeUnit.DAYS.toMillis(1);
-                    Date end = new Date(start.getTime() + aDay * 365 * 10);
-                    return Date.from(Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(start.getTime(), end.getTime())));
-                }).orElseGet(() -> Date.from(Instant.ofEpochSecond(ThreadLocalRandom.current().nextInt()))));
-            default:
-                throw new IllegalArgumentException("Illegal date based logical type: " + logicalType);
-        }
-    }
-
     public static Object random(String logicalType, Map propertiesProp) {
         switch (logicalType) {
-            case "datetime": return null;
+            case "datetime":
+                Map dateRangeProps = Optional.ofNullable(propertiesProp.get(DATE_RANGE_PROP))
+                        .map(m -> (Map) m)
+                        .orElse(new HashMap());
+
+                java.sql.Timestamp isoDateTimeStart = Validations.tryParseDatetime((Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_START))
+                        .map(Object::toString)
+                        .orElse(DEFAULT_START_DATE_TIME)))
+                        .getOrElse(() -> {
+                            throw new IllegalArgumentException(String.format(
+                                    "Invalid iso date at field '%s' in %s property",
+                                    DATE_RANGE_PROP_START,
+                                    DATE_RANGE_PROP
+                            ));
+                        });
+                java.sql.Timestamp isoDateTimeEnd = Validations.tryParseDatetime((Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_END))
+                        .map(Object::toString)
+                        .orElse(DEFAULT_END_DATE_TIME)))
+                        .getOrElse(() -> {
+                            throw new IllegalArgumentException(String.format(
+                                    "Invalid iso date at field '%s' in %s property",
+                                    DEFAULT_END_DATE,
+                                    DATE_RANGE_PROP
+                            ));
+                        });
+
+                if (isoDateTimeStart.after(isoDateTimeEnd)) {
+                    throw new RuntimeException(String.format(
+                            "'%s' field must be strictly less than '%s' field in %s property",
+                            DATE_RANGE_PROP_START,
+                            DATE_RANGE_PROP_END,
+                            DATE_RANGE_PROP
+                    ));
+                }
+                return ISO_LOCAL_DATE_TIME.format(dateBetween(isoDateTimeStart, isoDateTimeEnd)
+                        .toInstant()
+                        .atOffset(ZoneOffset.UTC));
             case "duration":
                 Date durationStart = new Date();
                 Date durationEnd = new Date(durationStart.getTime() + TimeUnit.DAYS.toMillis(MAX_DURATION_DAYS));
@@ -116,33 +138,42 @@ public class LogicalTypeGenerator {
                         });
                 return phoneNumberUtil.format(phoneNumberUtil.getExampleNumber(regionCode), PhoneNumberUtil.PhoneNumberFormat.E164);
             case "iso-date":
-                Object dateRangeProp = propertiesProp.get(DATE_RANGE_PROP);
-                if (dateRangeProp != null) {
-                    if (dateRangeProp instanceof Map) {
-                        Map dateRangeProps = (Map) dateRangeProp;
-                        Date isoStart = getRandomDate(logicalType,
-                                Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_START)).map(Object::toString),
-                                        Optional.empty());
-                        Date isoEnd = getRandomDate(logicalType,
-                                Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_END)).map(Object::toString),
-                                Optional.empty());
+                dateRangeProps = Optional.ofNullable(propertiesProp.get(DATE_RANGE_PROP))
+                        .map(m -> (Map) m)
+                        .orElse(new HashMap());
 
-                        if (isoStart.after(isoEnd)) {
-                            throw new RuntimeException(String.format(
-                                    "'%s' field must be strictly less than '%s' field in %s property",
+                java.sql.Date isoDateStart = Validations.tryParseDate((Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_START))
+                        .map(Object::toString)
+                        .orElse(DEFAULT_START_DATE)))
+                        .getOrElse(() -> {
+                            throw new IllegalArgumentException(String.format(
+                                    "Invalid iso date at field '%s' in %s property",
                                     DATE_RANGE_PROP_START,
-                                    DATE_RANGE_PROP_END,
                                     DATE_RANGE_PROP
                             ));
-                        }
-                        return Optional.of(dateBetween(isoStart, isoEnd))
-                                .map(ISO_DATE_FORMAT::format)
-                                .get();
-                    }
+                        });
+                java.sql.Date isoDateEnd = Validations.tryParseDate((Optional.ofNullable(dateRangeProps.get(DATE_RANGE_PROP_END))
+                        .map(Object::toString)
+                        .orElse(DEFAULT_END_DATE)))
+                        .getOrElse(() -> {
+                            throw new IllegalArgumentException(String.format(
+                                    "Invalid iso date at field '%s' in %s property",
+                                    DEFAULT_END_DATE,
+                                    DATE_RANGE_PROP
+                            ));
+                        });
+
+                if (isoDateStart.after(isoDateEnd)) {
+                    throw new RuntimeException(String.format(
+                            "'%s' field must be strictly less than '%s' field in %s property",
+                            DATE_RANGE_PROP_START,
+                            DATE_RANGE_PROP_END,
+                            DATE_RANGE_PROP
+                    ));
                 }
-                return Optional.of(getRandomDate(logicalType, Optional.empty(), Optional.empty()))
-                        .map(ISO_DATE_FORMAT::format)
-                        .get();
+                return ISO_LOCAL_DATE.format(dateBetween(isoDateStart, isoDateEnd)
+                        .toInstant()
+                        .atOffset(ZoneOffset.UTC));
             case "country-code-numeric":
                 List<String> numericCodes = JavaConverters.seqAsJavaList(Validations.countryCodeNumeric());
                 return numericCodes.get(random.nextInt(numericCodes.size()));
@@ -158,9 +189,10 @@ public class LogicalTypeGenerator {
             case "currency-code-numeric":
                 List<Object> numericCurrencyCode = JavaConverters
                         .seqAsJavaList(Validations.currencyCodeNumeric().toSeq());
-                return (numericCurrencyCode
+                int currencyCode = Integer.parseInt(numericCurrencyCode
                         .get(random.nextInt(numericCurrencyCode.size()))
                         .toString());
+                return String.format("%03d", currencyCode);
             case "imei":
                 return digitsGenerator.generate(LogicalTypeGenerator.IMEI_LENGTH);
             case "imsi":

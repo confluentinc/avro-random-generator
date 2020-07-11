@@ -11,190 +11,178 @@ import static org.junit.Assert.*;
 
 public class LogicalTypeGeneratorTest {
 
+  private static GenericRecord generateRecordWithSchema(String path) {
+    String schema = ResourceUtil.loadContent(path);
+    Generator generator = new Generator.Builder().schemaString(schema).build();
+    return (GenericRecord) generator.generate();
+  }
+
   @Test
   public void shouldCreateValidISODate() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/iso-date.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/iso-date.json");
 
-    assertNotNull(generated.get("day_dt"));
-    assertNotNull(generated.get("day_dt"));
-    assertTrue("Invalid iso-date: " + generated.get("day_dt"),
-            Validations.isValidDate(generated.get("day_dt").toString())
-    );
+    String field = "day_dt";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid iso-date: " + value, Validations.isValidDate(value));
   }
 
   @Test
   public void shouldCreateValidISODateInRange() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/iso-date-range.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/iso-date-range.json");
 
-    assertNotNull(generated.get("day_dt"));
-    assertNotNull(generated.get("day_dt"));
-    assertTrue("Invalid iso-date: " + generated.get("day_dt"),
-            Validations.isValidDate(generated.get("day_dt").toString())
-    );
+    String field = "day_dt";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid iso-date: " + value, Validations.isValidDate(value));
   }
 
 
   @Test
   public void shouldCreateValidDateTime() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/datetime.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/datetime.json");
 
-    assertNotNull(generated.get("interaction_tm"));
-    assertTrue("Invalid datetime: " + generated.get("interaction_tm"),
-            Validations.isValidDatetime(generated.get("interaction_tm").toString())
-    );
+    String field = "interaction_tm";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid datetime: " + value, Validations.isValidDatetime(value));
   }
 
   @Test
   public void shouldCreateValidPhoneNumber() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/phone-number.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/phone-number.json");
 
-    assertNotNull(generated.get("caller_phone_with_prefix_id"));
-    assertTrue("Invalid phone number: " + generated.get("caller_phone_with_prefix_id"),
-            Validations.isValidPhoneNumber(generated.get("caller_phone_with_prefix_id").toString())
-    );
+    String field = "caller_phone_with_prefix_id";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
   }
 
   @Test
   public void shouldCreateValidPhoneNumberInSpecificRegion() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/phone-number-region.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/phone-number-region.json");
 
-    assertNotNull(generated.get("caller_phone_with_prefix_id"));
-    assertTrue("Invalid phone number: " + generated.get("caller_phone_with_prefix_id"),
-            Validations.isValidPhoneNumber(generated.get("caller_phone_with_prefix_id").toString())
-    );
-    assertTrue("Invalid ES phone number: " + generated.get("caller_phone_with_prefix_id"),
-            generated.get("caller_phone_with_prefix_id").toString().startsWith("+34"));
+    String field = "caller_phone_with_prefix_id";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
+    assertTrue("Invalid ES phone number: " + value, value.startsWith("+34"));
   }
 
   @Test
   public void shouldCreateValidCountryCodeNumeric() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/country-code-numeric.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/country-code-numeric.json");
 
-    assertNotNull(generated.get("country"));
-    assertTrue("Invalid country code: " + generated.get("country"),
-            Validations.isValidCountryCodeNumeric(generated.get("country").toString())
-    );
+    String field = "country";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid country code: " + value, Validations.isValidCountryCodeNumeric(value));
   }
 
   @Test
   public void shouldCreateValidCountryCodeAlpha2() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/country-code-alpha2.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/country-code-alpha2.json");
 
-    assertNotNull(generated.get("country"));
-    assertTrue("Invalid country code alpha-2: " + generated.get("country"),
-            Validations.isValidCountryCode2(generated.get("country").toString())
-    );
+    String field = "country";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid country code alpha-2: " + value, Validations.isValidCountryCode2(value));
   }
 
   @Test
   public void shouldCreateValidCountryCodeAlpha3() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/country-code-alpha3.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/country-code-alpha3.json");
 
-    assertNotNull(generated.get("country"));
-    assertTrue("Invalid country code alpha-3: " + generated.get("country"),
-            Validations.isValidCountryCode3(generated.get("country").toString())
-    );
+    String field = "country";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid country code alpha-3: " + value, Validations.isValidCountryCode3(value));
   }
 
   @Test
   public void shouldCreateValidCurrencyCodeNumeric() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/currency-code-numeric.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/currency-code-numeric.json");
 
-    assertNotNull(generated.get("currency"));
-    assertTrue("Invalid currency code: " + generated.get("currency"),
-            Validations.isValidCurrencyNumeric(generated.get("currency").toString())
-    );
+    String field = "currency";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid currency code: " + value, Validations.isValidCurrencyNumeric(value));
   }
 
   @Test
   public void shouldCreateValidCurrencyCodeAlpha() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/currency-code-alpha.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/currency-code-alpha.json");
 
-    assertNotNull(generated.get("currency"));
-    assertTrue("Invalid currency code: " + generated.get("currency"),
-            Validations.isValidCurrency(generated.get("currency").toString())
-    );
+    String field = "currency";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid currency code: " + value, Validations.isValidCurrency(value));
   }
 
   @Test
   public void shouldCreateValidIMEI() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/imei.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/imei.json");
 
-    assertNotNull(generated.get("imei"));
-    assertTrue("Invalid imei: " + generated.get("imei"),
-            Validations.isValidIMEINumber(generated.get("imei").toString())
-    );
+    String field = "imei";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid imei: " + value, Validations.isValidIMEINumber(value));
   }
 
   @Test
   public void shouldCreateValidIMSI() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/imsi.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/imsi.json");
 
-    assertNotNull(generated.get("imsi"));
-    assertTrue("Invalid imsi: " + generated.get("imsi"),
-            Validations.isValidIMSINumber(generated.get("imsi").toString())
-    );
+    String field = "imsi";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid imsi: " + value, Validations.isValidIMSINumber(value));
   }
 
   @Test
   public void shouldCreateValidDuration() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/duration.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/duration.json");
 
-    assertNotNull(generated.get("call_duration"));
-    assertTrue("Invalid call_duration: " + generated.get("call_duration"),
-            Validations.isValidDuration(generated.get("call_duration").toString())
-    );
+    String field = "call_duration";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid call_duration: " + value, Validations.isValidDuration(value));
   }
 
   @Test
   public void shouldCreateValidTime() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/time.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/time.json");
 
-    assertNotNull(generated.get("time"));
-    assertTrue("Invalid time: " + generated.get("time"),
-            Validations.isValidTime(generated.get("time").toString())
-    );
+    String field = "time";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid time: " + value, Validations.isValidTime(value));
   }
 
   // needs spark
   @Ignore
   public void shouldCreateValidDecimalString() {
-    String schema = ResourceUtil.loadContent("test-schemas/logical-types/decimal-string.json");
-    Generator generator = new Generator.Builder().schemaString(schema).build();
-    final GenericRecord generated = (GenericRecord) generator.generate();
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/decimal-string.json");
 
-    assertNotNull(generated.get("number"));
-    assertTrue("Invalid decimal-string: " + generated.get("number"),
-            Validations.tryParseDecimal(generated.get("number").toString()).nonEmpty()
-    );
+    String field = "number";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid decimal-string: " + value, Validations.tryParseDecimal(value).nonEmpty());
   }
 
 }
