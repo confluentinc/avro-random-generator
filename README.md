@@ -110,6 +110,7 @@ should conform to.
 + __kind:__ A JSON string describing the kind of string:
     - __uuid__: a random uuid will be generated.
     - __email__: a random email will be generated.
+    - __name__: a random person name will be generated.
 + __prefix:__ A JSON string containing a prefix that should be prepended
 to the beginning of a string.
 + __suffix:__ A JSON string containing a suffix that should be appended
