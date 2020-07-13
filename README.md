@@ -98,7 +98,7 @@ begin with &lt;start&gt; and alternate from `true` to `false` and from
     greater than or equal to &lt;start&gt; and/or strictly less than &lt;end&gt;. 
     > Only applicable for the logical-type iso-date
     - `{"start": <iso-datetime>, "end": <iso-datetime>}` (at least one of "start" or "end" must be
-    specified). If provided, ensures that the generated date will be
+    specified). If provided, ensures that the generated datetime will be
     greater than or equal to &lt;start&gt; and/or strictly less than &lt;end&gt;.
     > Only applicable for the logical-type datetime
 + __length:__ Either a JSON number or a JSON object that conforms to the
@@ -603,4 +603,3 @@ to work with it properly due, to the relative paths of the files.
 
 A schema where every field is annotated with an example usage of the
 options annotation, as well as an example of the keys annotation.
-
