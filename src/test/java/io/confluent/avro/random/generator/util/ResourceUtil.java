@@ -36,8 +36,13 @@ public final class ResourceUtil {
   }
 
   public static GenericRecord generateRecordWithSchema(String path) {
-    String schema = ResourceUtil.loadContent(path);
-    Generator generator = new Generator.Builder().schemaString(schema).build();
+    Generator generator = builderWithSchema(path);
     return (GenericRecord) generator.generate();
   }
+
+  public static Generator builderWithSchema(String path) {
+    String schema = ResourceUtil.loadContent(path);
+    return new Generator.Builder().schemaString(schema).build();
+  }
+
 }

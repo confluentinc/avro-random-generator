@@ -121,6 +121,8 @@ spoofed maps.
 a boolean schema, specifies the likelihood that the generated value is
 `true`.
 + __position:__ A Integer value that indicate the position of the union to select.
++ __distribution:__ A JSON object that conforms to the following formats:
+    - `{"0": 0.3, "1": 0.7}` all the union's positions with its probability
 
 The following schemas support the following annotations:
 

@@ -1,0 +1,19 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "nullable_col",
+      "type": [
+        "null",
+        {
+          "type": "string"
+        }
+      ],
+      "arg.properties": {
+        "position": 0
+      }
+    }
+  ]
+}

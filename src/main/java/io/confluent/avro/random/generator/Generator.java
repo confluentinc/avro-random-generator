@@ -36,8 +36,9 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
 import org.apache.commons.text.RandomStringGenerator;
-import org.apache.commons.text.TextRandomProvider;
 
 import java.io.EOFException;
 import java.io.File;
@@ -60,6 +61,7 @@ public class Generator {
   private final Map<Schema, Generex> generexCache = new HashMap<>();
   private final Map<Schema, List<Object>> optionsCache = new HashMap<>();
   private final Map<Schema, Iterator<Object>> iteratorCache = new IdentityHashMap<>();
+  private final Map<Schema, EnumeratedDistribution<String>> enumeratedDistributions = new HashMap<>();
 
   /**
    * The name to use for the top-level JSON property when specifying ARG-specific attributes.
@@ -116,6 +118,12 @@ public class Generator {
    * The name of the attribute for specifying specific position which should be select from the union.
    */
   public static final String POSITION_PROP = "position";
+
+  /**
+   * The name of the attribute for specifying a possible distribution of values for union types. Must be
+   * given as an object. An all the options must be specified.
+   */
+  public static final String DISTRIBUTION_PROP = "distribution";
 
   /**
    * The name of a file from which to read specific values to generate for the given schema. Must
@@ -1385,11 +1393,51 @@ public class Generator {
     return prefix + result + suffix;
   }
 
+  private EnumeratedDistribution<String> getDistribution(Schema schema, Map<String, Object> args) {
+    EnumeratedDistribution<String> enumeratedDistribution = enumeratedDistributions.get(schema);
+    if (enumeratedDistribution == null && args != null && args.get(DISTRIBUTION_PROP) != null) {
+      Map<String, Double> distributionProp = (Map<String, Double>) args.get(DISTRIBUTION_PROP);
+      Set<String> keys = distributionProp.keySet();
+
+      if (keys.size() != schema.getTypes().size()) {
+        throw new RuntimeException(String.format(
+            "%s property must contain all possible union type distributions (%s)",
+            DISTRIBUTION_PROP,
+            schema.getTypes().size()
+        ));
+      }
+
+      List<Pair<String, Double>> distributions = new ArrayList<>();
+      Double wholeProb = 0.;
+      Double typeProb;
+      for (String unionPosition : keys) {
+        typeProb = distributionProp.get(unionPosition);
+        distributions.add(new Pair<>(unionPosition, typeProb));
+        wholeProb += typeProb;
+      }
+
+      if (wholeProb != 1.) {
+        throw new RuntimeException(String.format(
+            "all probabilities of %s property must sum 1",
+            DISTRIBUTION_PROP
+        ));
+      }
+
+      enumeratedDistribution = new EnumeratedDistribution<>(distributions);
+    }
+    return enumeratedDistribution;
+  }
+
   private Object generateUnion(Schema schema, Map<String, Object> args) {
     List<Schema> schemas = schema.getTypes();
     Integer position = null;
+
     if (args != null) position = (Integer) args.get(POSITION_PROP);
-    if (position == null) position = random.nextInt(schemas.size());
+    if (position == null) {
+      EnumeratedDistribution<String> distribution = getDistribution(schema, args);
+      position = distribution != null ? new Integer(distribution.sample()) : random.nextInt(schemas.size());
+    }
+
     return generateObject(schemas.get(position), Collections.emptyMap());
   }
 
