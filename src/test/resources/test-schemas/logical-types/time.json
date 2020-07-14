@@ -1,0 +1,15 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "time",
+      "type": {
+        "type": "string",
+        "logicalType": "time"
+      },
+      "doc": "A valid ISO-8601 value that contains a complete time representation"
+    }
+  ]
+}

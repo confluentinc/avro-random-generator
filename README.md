@@ -89,16 +89,28 @@ if &lt;restart&gt; is equal to &lt;start&gt;. If provided with a boolean
 schema, only &lt;start&gt; may be specified; the resulting values will
 begin with &lt;start&gt; and alternate from `true` to `false` and from
 `false` to `true` from that point on. 
-+ __range:__ A JSON object that conforms to the following format:
-`{"min": <min>, "max": <max>}` (at least one of "min" or "max" must be
-specified). If provided, ensures that the generated number will be
-greater than or equal to &lt;min&gt; and/or strictly less than &lt;max&gt;.
++ __range:__ A JSON object that conforms to the following formats:
+    - `{"min": <min>, "max": <max>}` (at least one of "min" or "max" must be
+    specified). If provided, ensures that the generated number will be
+    greater than or equal to &lt;min&gt; and/or strictly less than &lt;max&gt;.
+    - `{"start": <iso-date>, "end": <iso-date>}` (at least one of "start" or "end" must be
+    specified). If provided, ensures that the generated date will be
+    greater than or equal to &lt;start&gt; and/or strictly less than &lt;end&gt;. 
+    > Only applicable for the logical-type iso-date
+    - `{"start": <iso-datetime>, "end": <iso-datetime>}` (at least one of "start" or "end" must be
+    specified). If provided, ensures that the generated datetime will be
+    greater than or equal to &lt;start&gt; and/or strictly less than &lt;end&gt;.
+    > Only applicable for the logical-type datetime
 + __length:__ Either a JSON number or a JSON object that conforms to the
 following format: `{"min": <min>, "max": <max>}` (at least one of "min"
 or "max" must be specified, and if present, values for either must be
 numbers). __Defaults to `{"min": 8, "max": 16}`__.
 + __regex:__ A JSON string describing a regular expression that a string
 should conform to.
++ __kind:__ A JSON string describing the kind of string:
+    - __uuid__: a random uuid will be generated.
+    - __email__: a random email will be generated.
+    - __name__: a random person name will be generated.
 + __prefix:__ A JSON string containing a prefix that should be prepended
 to the beginning of a string.
 + __suffix:__ A JSON string containing a suffix that should be appended
@@ -110,8 +122,14 @@ spoofed maps.
 a boolean schema, specifies the likelihood that the generated value is
 `true`.
 + __position:__ A Integer value that indicate the position of the union to select.
++ __distribution:__ A JSON object that conforms to the following formats:
+    - `{"0": 0.3, "1": 0.7}` all the union's positions with its probability
 
 The following schemas support the following annotations:
+
+### Logical Types
+
+4PF logical-types integration. Check the supported [logical types here](https://developers.baikalplatform.com/docs/4.1/datasets/avro-4p.html)
 
 ### Primitives
 
@@ -588,4 +606,3 @@ to work with it properly due, to the relative paths of the files.
 
 A schema where every field is annotated with an example usage of the
 options annotation, as well as an example of the keys annotation.
-

@@ -20,6 +20,8 @@ import com.mifmif.common.regex.Generex;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.telefonica.baikal.avro.types.CustomLogicalTypes;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -34,6 +36,9 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
+import org.apache.commons.text.RandomStringGenerator;
 
 import java.io.EOFException;
 import java.io.File;
@@ -42,22 +47,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Generates Java objects according to an {@link Schema Avro Schema}.
@@ -68,6 +61,7 @@ public class Generator {
   private final Map<Schema, Generex> generexCache = new HashMap<>();
   private final Map<Schema, List<Object>> optionsCache = new HashMap<>();
   private final Map<Schema, Iterator<Object>> iteratorCache = new IdentityHashMap<>();
+  private final Map<Schema, EnumeratedDistribution<String>> enumeratedDistributions = new HashMap<>();
 
   /**
    * The name to use for the top-level JSON property when specifying ARG-specific attributes.
@@ -124,6 +118,12 @@ public class Generator {
    * The name of the attribute for specifying specific position which should be select from the union.
    */
   public static final String POSITION_PROP = "position";
+
+  /**
+   * The name of the attribute for specifying a possible distribution of values for union types. Must be
+   * given as an object. An all the options must be specified.
+   */
+  public static final String DISTRIBUTION_PROP = "distribution";
 
   /**
    * The name of a file from which to read specific values to generate for the given schema. Must
@@ -202,11 +202,19 @@ public class Generator {
    */
   public static final String ITERATION_PROP_INITIAL = "initial";
 
-  static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
+  public static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
+
+  private static final String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      + "0123456789"
+      + "abcdefghijklmnopqrstuvxyz"
+      + "-_ !?,.";
 
   private final Schema topLevelSchema;
   private final Random random;
   private final long generation;
+  private final RandomStringGenerator randomStringGenerator;
+  private final KindGenerator kindGenerator;
+  private final LogicalTypeGenerator logicalTypeGenerator;
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -222,6 +230,12 @@ public class Generator {
     this.topLevelSchema = topLevelSchema;
     this.random = random;
     this.generation = generation;
+    this.randomStringGenerator = new RandomStringGenerator.Builder()
+        .selectFrom(alphaNumericString.toCharArray())
+        .usingRandom(random::nextInt)
+        .build();
+    this.kindGenerator = new KindGenerator(random);
+    this.logicalTypeGenerator = new LogicalTypeGenerator(random);
   }
 
   /**
@@ -257,6 +271,10 @@ public class Generator {
   }
 
   public static class Builder {
+
+    static {
+      CustomLogicalTypes.register();
+    }
 
     private Schema topLevelSchema;
     private Random random;
@@ -492,7 +510,7 @@ public class Generator {
   private List<Object> parseOptions(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, OPTIONS_PROP,
-        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP
+        LENGTH_PROP, REGEX_PROP, ITERATION_PROP, RANGE_PROP, KindGenerator.KIND_PROP
     );
 
     Object optionsProp = propertiesProp.get(OPTIONS_PROP);
@@ -901,7 +919,7 @@ public class Generator {
   private Iterator<Object> parseIterations(Schema schema, Map propertiesProp) {
     enforceMutualExclusion(
         propertiesProp, ITERATION_PROP,
-        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP
+        LENGTH_PROP, REGEX_PROP, OPTIONS_PROP, RANGE_PROP, KindGenerator.KIND_PROP
     );
 
     Object iterationProp = propertiesProp.get(ITERATION_PROP);
@@ -1328,7 +1346,7 @@ public class Generator {
       if (!(regexProp instanceof String)) {
         throw new RuntimeException(String.format("%s property must be a string", REGEX_PROP));
       }
-      generexCache.put(schema, new Generex((String) regexProp));
+      generexCache.put(schema, new Generex((String) regexProp, random));
     }
     // Generex.random(low, high) generates in range [low, high]; we want [low, high), so subtract
     // 1 from maxLength
@@ -1336,19 +1354,22 @@ public class Generator {
   }
 
   private String generateRandomString(int length) {
-    byte[] bytes = new byte[length];
-    for (int i = 0; i < length; i++) {
-      bytes[i] = (byte) random.nextInt(128);
-    }
-    return new String(bytes, StandardCharsets.US_ASCII);
+    return randomStringGenerator.generate(length);
   }
 
   private String generateString(Schema schema, Map propertiesProp) {
+
     Object regexProp = propertiesProp.get(REGEX_PROP);
+    Object kindProp = propertiesProp.get(KindGenerator.KIND_PROP);
+    LogicalType logicalType = schema.getLogicalType();
 
     String result;
     if (regexProp != null) {
       result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
+    } else if (kindProp != null) {
+      result = kindGenerator.random(kindProp);
+    } else if (logicalType != null) {
+      result = logicalTypeGenerator.random(logicalType.getName(), propertiesProp);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }
@@ -1372,11 +1393,51 @@ public class Generator {
     return prefix + result + suffix;
   }
 
+  private EnumeratedDistribution<String> getDistribution(Schema schema, Map<String, Object> args) {
+    EnumeratedDistribution<String> enumeratedDistribution = enumeratedDistributions.get(schema);
+    if (enumeratedDistribution == null && args != null && args.get(DISTRIBUTION_PROP) != null) {
+      Map<String, Double> distributionProp = (Map<String, Double>) args.get(DISTRIBUTION_PROP);
+      Set<String> keys = distributionProp.keySet();
+
+      if (keys.size() != schema.getTypes().size()) {
+        throw new RuntimeException(String.format(
+            "%s property must contain all possible union type distributions (%s)",
+            DISTRIBUTION_PROP,
+            schema.getTypes().size()
+        ));
+      }
+
+      List<Pair<String, Double>> distributions = new ArrayList<>();
+      Double wholeProb = 0.;
+      Double typeProb;
+      for (String unionPosition : keys) {
+        typeProb = distributionProp.get(unionPosition);
+        distributions.add(new Pair<>(unionPosition, typeProb));
+        wholeProb += typeProb;
+      }
+
+      if (wholeProb != 1.) {
+        throw new RuntimeException(String.format(
+            "all probabilities of %s property must sum 1",
+            DISTRIBUTION_PROP
+        ));
+      }
+
+      enumeratedDistribution = new EnumeratedDistribution<>(distributions);
+    }
+    return enumeratedDistribution;
+  }
+
   private Object generateUnion(Schema schema, Map<String, Object> args) {
     List<Schema> schemas = schema.getTypes();
     Integer position = null;
-    if(args != null) { position = (Integer) args.get(POSITION_PROP); }
-    if(position == null) position = random.nextInt(schemas.size());
+
+    if (args != null) position = (Integer) args.get(POSITION_PROP);
+    if (position == null) {
+      EnumeratedDistribution<String> distribution = getDistribution(schema, args);
+      position = distribution != null ? new Integer(distribution.sample()) : random.nextInt(schemas.size());
+    }
+
     return generateObject(schemas.get(position), Collections.emptyMap());
   }
 

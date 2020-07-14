@@ -1,0 +1,18 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "caller_phone_with_prefix_id",
+        "type": {
+          "type": "string",
+          "logicalType": "phone-number",
+          "arg.properties": {
+            "region-code": "ES"
+          }
+        },
+        "doc": "Phone number (in the case of contact via phone call), WITH_INTERNATIONAL_PREFFIX, used in the contact action. It may not coincide with the phone number associated to the line or SUBSCRIBER_ID/CUSTOMER_ID"
+      }
+    ]
+}

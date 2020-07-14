@@ -1,0 +1,16 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "email",
+        "type": {
+          "type": "string",
+          "arg.properties": {
+            "kind": "email"
+          }
+        }
+      }
+    ]
+}
