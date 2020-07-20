@@ -45,7 +45,7 @@ $ ./gradlew standalone
 ### Docker
 
 ```
-docker build -t baikalimages.azurecr.io/baikal/avro-generator:0.1.0 -f delivery/docker/Dockerfile .
+docker build -t telefonica/avro-random-generator:0.1.0 -f delivery/docker/Dockerfile .
 ```
 
 ### Docker Compose
