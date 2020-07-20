@@ -24,7 +24,7 @@ sourceCompatibility = 1.8
 
 group = 'io.confluent.avro'
 archivesBaseName = 'avro-random-generator'
-version = '0.3.2-SNAPSHOT'
+version = '0.4.2-SNAPSHOT'
 
 signing {
     sign configurations.archives
@@ -53,7 +53,7 @@ task sourcesJar(type: Jar) {
 // Copied from http://stackoverflow.com/questions/4871656/using-gradle-to-build-a-jar-with-dependencies
 task standalone(type: Jar) {
     destinationDir file("$rootDir/bin")
-    archiveName 'arg.jar'
+    archiveName 'avro-generator.jar'
     from {
         (configurations.runtime).collect {
             it.isDirectory() ? it : zipTree(it)
