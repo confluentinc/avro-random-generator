@@ -1,0 +1,25 @@
+## This docker-compose file is used to launch several environments for testing
+
+version: '3.6'
+
+x-environment: &environment
+  - DATASET_ID
+  - DATASET_VERSION
+  - RECORDS
+  - DATASETS_IN
+  - DATASETS_EXTENSIONS_IN
+
+services:
+  avro-generator:
+    build:
+      context: .
+      dockerfile: ./delivery/docker/Dockerfile
+      cache_from:
+        - baikaldev.azurecr.io/buildkite/baikal-services:master
+
+    command: ./scripts/build-data.sh
+    environment: *environment
+    volumes:
+      - .:/opt/random-avro-generator:delegated
+      - ./samples/out:/datasets-out
+

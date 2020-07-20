@@ -36,8 +36,26 @@ cause any issues if present when the schema is used with other programs.
 
 ## Building
 
+### Gradle
+
 ```
 $ ./gradlew standalone
+```
+
+### Docker
+
+```
+docker build -t baikalimages.azurecr.io/baikal/avro-generator:0.1.0 -f delivery/docker/Dockerfile .
+```
+
+### Docker Compose
+
+Before running the scripts, you must create a `.env` file and setup there some
+configurations. First of all, copy the `.env.template` file to `.env`:
+
+```
+docker-compose build
+docker-compose run avro-generator
 ```
 
 ## CLI Usage

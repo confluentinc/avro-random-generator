@@ -14,10 +14,9 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-BASE_DIR=`dirname "$0"`
-BASE_NAME=`basename $0`
+BASE_DIR="/opt/random-avro-generator"
 
-JAR_FILE="$BASE_DIR/bin/arg.jar"
+JAR_FILE="$BASE_DIR/bin/avro-generator.jar"
 if ! [[ -f "$JAR_FILE" ]]; then
   echo -e "$0: could not locate jarfile at '$JAR_FILE'\n" \
       "You probably need to build the project; try running " \

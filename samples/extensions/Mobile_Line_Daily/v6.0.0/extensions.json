@@ -1,0 +1,21 @@
+{
+  "namespace": "com.plainAVRO",
+  "name": "Mobile_Line_Daily",
+  "type": "record",
+  "doc": "Daily status of all contract, prepaid or hybrid lines (including additional lines of customers with multisim) at the date indicated in DAY_DT: Active park that day, plus inactivations (line status changed to inactive) and cancellations occurred that day.\nEvery extension (in the case of multiSIM) must be considered as a line.\nThis entity is intended for \"daily snapshots\" and must reflect the most recent status (line type, billing cycle, segment, etc.) available at the extraction moment, in order to reflect \"recent\" changes occurred in the line.",
+  "x-fp-version": "6.0.0",
+  "fields": [
+    {
+      "name": "OPERATOR_ID",
+      "type": {
+        "type": "string",
+        "arg.properties": {
+          "options": {
+            "file": "/opt/random-avro-generator/samples/extensions/operators.json",
+            "encoding": "json"
+          }
+        }
+      }
+    }
+  ]
+}
