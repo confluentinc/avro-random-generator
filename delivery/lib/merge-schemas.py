@@ -6,6 +6,14 @@ import json
 
 from deepmerge import Merger
 
+field_merger = Merger(
+    [
+        (list, ["override"]),
+        (dict, ["merge"])
+    ],
+    ["override"],
+    ["override"]
+)
 
 def merge_list(merger, path, base, nxt):
     extensions = dict((d['name'], dict(d, index=index)) for (index, d) in enumerate(nxt))
@@ -13,7 +21,7 @@ def merge_list(merger, path, base, nxt):
     for base_field in base:
         extension_field = extensions.get(base_field['name'])
         if extension_field:
-            merged_field = merger.merge(base_field, extension_field)
+            merged_field = field_merger.merge(base_field, extension_field)
             del merged_field['index']
             result.append(merged_field)
         else:
