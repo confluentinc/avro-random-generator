@@ -6,7 +6,20 @@
   "x-fp-version": "6.0.0",
   "fields": [
     {
-      "name": "OPERATOR_ID",
+      "name": "DAY_DT",
+      "type": {
+        "type": "string",
+        "logicalType": "iso-date",
+        "arg.properties": {
+          "options": [
+            "2019-01-14",
+            "2019-01-15"
+          ]
+        }
+      }
+    },
+    {
+      "name": "LINE_STATUS_ID",
       "type": {
         "type": "string",
         "arg.properties": {
@@ -16,6 +29,20 @@
           }
         }
       }
+    },
+    {
+      "name": "MSISDN_WITH_PREFIX_ID",
+      "type": [
+        "null",
+        {
+          "type": "string",
+          "logicalType": "phone-number",
+          "x-fp-identifier": "phone-number",
+          "arg.properties": {
+            "region-code": "ES"
+          }
+        }
+      ]
     }
   ]
 }
