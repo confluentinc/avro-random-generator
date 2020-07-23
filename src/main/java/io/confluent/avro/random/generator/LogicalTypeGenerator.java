@@ -1,11 +1,16 @@
 package io.confluent.avro.random.generator;
 
+import com.github.javafaker.Faker;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonemetadata;
+import com.google.i18n.phonenumbers.Phonenumber;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.text.RandomStringGenerator;
 import scala.collection.JavaConverters;
 import com.telefonica.baikal.utils.Validations;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -64,6 +69,7 @@ public class LogicalTypeGenerator {
 
   private final Random random;
   private final RandomStringGenerator digitsGenerator;
+  private Faker faker;
 
   LogicalTypeGenerator(Random random) {
     this.random = random;
@@ -72,6 +78,29 @@ public class LogicalTypeGenerator {
         .filteredBy(DIGITS)
         .usingRandom(random::nextInt)
         .build();
+    this.faker = new Faker(this.random);
+  }
+
+  private String getRandomPhoneNumber(String regionCode) {
+    String phoneNumber = "";
+    try {
+      Method getMetadataForRegionOrCallingCode = PhoneNumberUtil.class
+          .getDeclaredMethod("getMetadataForRegionOrCallingCode", int.class, String.class);
+      getMetadataForRegionOrCallingCode.setAccessible(true);
+      Phonemetadata.PhoneMetadata metadata = (Phonemetadata.PhoneMetadata) getMetadataForRegionOrCallingCode.invoke(phoneNumberUtil, phoneNumberUtil.getCountryCodeForRegion(regionCode), regionCode);
+
+      Phonenumber.PhoneNumber example = phoneNumberUtil.getExampleNumber(regionCode);
+      String pattern = metadata.getFixedLine().getNationalNumberPattern();
+      example.setNationalNumber(Long.parseLong(faker.regexify(pattern)));
+      phoneNumberUtil.truncateTooLongNumber(example);
+      phoneNumber = phoneNumberUtil.format(example, PhoneNumberUtil.PhoneNumberFormat.E164);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+      System.err.println("An error occurred trying to generate random phone number");
+      e.printStackTrace();
+    } catch (NumberFormatException e) {
+      return getRandomPhoneNumber(regionCode);
+    }
+    return phoneNumber;
   }
 
   public String random(String logicalType, Map propertiesProp) {
@@ -134,7 +163,7 @@ public class LogicalTypeGenerator {
               List<String> regions = new ArrayList<>(phoneNumberUtil.getSupportedRegions());
               return regions.get(random.nextInt(regions.size()));
             });
-        return phoneNumberUtil.format(phoneNumberUtil.getExampleNumber(regionCode), PhoneNumberUtil.PhoneNumberFormat.E164);
+        return getRandomPhoneNumber(regionCode);
       case "iso-date":
         dateRangeProps = Optional.ofNullable(propertiesProp.get(DATE_RANGE_PROP))
             .map(m -> (Map) m)

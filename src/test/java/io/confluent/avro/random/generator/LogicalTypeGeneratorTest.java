@@ -59,8 +59,21 @@ public class LogicalTypeGeneratorTest {
   }
 
   @Test
-  public void shouldCreateRandomPhoneNumber() {
+  public void shouldCreateMultipleValidPhoneNumber() {
     Generator generator = builderWithSchema("test-schemas/logical-types/phone-number.json");
+    String field = "caller_phone_with_prefix_id";
+    for (int i = 0; i < 1000; i++) {
+      GenericRecord record = (GenericRecord) generator.generate();
+      assertNotNull(record.get("caller_phone_with_prefix_id"));
+      String value = record.get(field).toString();
+      System.out.println("Generated value is: " + value);
+      assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
+    }
+  }
+
+  @Test
+  public void shouldCreateRandomPhoneNumber() {
+    Generator generator = builderWithSchema("test-schemas/logical-types/phone-number-region.json");
 
     GenericRecord record1 = (GenericRecord) generator.generate();
     GenericRecord record2 = (GenericRecord) generator.generate();
@@ -69,6 +82,9 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record2.get(field));
     String value1 = record1.get(field).toString();
     String value2 = record2.get(field).toString();
+    System.out.println("Generated value 1 is: " + value1);
+    System.out.println("Generated value 2 is: " + value2);
+
     assertNotEquals(value1, value2);
   }
 
