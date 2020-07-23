@@ -6,6 +6,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static io.confluent.avro.random.generator.util.ResourceUtil.builderWithSchema;
 import static io.confluent.avro.random.generator.util.ResourceUtil.generateRecordWithSchema;
 import static org.junit.Assert.*;
 
@@ -55,6 +56,20 @@ public class LogicalTypeGeneratorTest {
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
     assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
+  }
+
+  @Test
+  public void shouldCreateRandomPhoneNumber() {
+    Generator generator = builderWithSchema("test-schemas/logical-types/phone-number.json");
+
+    GenericRecord record1 = (GenericRecord) generator.generate();
+    GenericRecord record2 = (GenericRecord) generator.generate();
+    String field = "caller_phone_with_prefix_id";
+    assertNotNull(record1.get(field));
+    assertNotNull(record2.get(field));
+    String value1 = record1.get(field).toString();
+    String value2 = record2.get(field).toString();
+    assertNotEquals(value1, value2);
   }
 
   @Test
