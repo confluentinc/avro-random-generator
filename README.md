@@ -142,12 +142,14 @@ a boolean schema, specifies the likelihood that the generated value is
 + __position:__ A Integer value that indicate the position of the union to select.
 + __distribution:__ A JSON object that conforms to the following formats:
     - `{"0": 0.3, "1": 0.7}` all the union's positions with its probability
++ __region-code:__  
 
 The following schemas support the following annotations:
 
 ### Logical Types
 
-4PF logical-types integration. Check the supported [logical types here](https://developers.baikalplatform.com/docs/4.1/datasets/avro-4p.html)
+4PF logical-types integration, random logical-type data will be generated according with this format. Check the supported [logical types here](https://developers.baikalplatform.com/docs/4.1/datasets/avro-4p.html)
+
 
 ### Primitives
 
@@ -187,6 +189,9 @@ The following schemas support the following annotations:
 + options
 + length*
 + regex*
++ kind
++ range (only for date based logical types)
++ region-code (only for phone-number logical type)
 
 __*Note:__ If both length and regex are specified for a string,
 the length property (if a JSON number) becomes a minimum length for the
@@ -215,6 +220,7 @@ string
 #### union
 + options
 + position
++ distribution
 
 ### Example schemas
 
@@ -624,3 +630,127 @@ to work with it properly due, to the relative paths of the files.
 
 A schema where every field is annotated with an example usage of the
 options annotation, as well as an example of the keys annotation.
+
+#### union-distribution.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "nullable_col",
+      "type": [
+        "null",
+        {
+          "type": "string"
+        }
+      ],
+      "arg.properties": {
+        "distribution": {
+          "0": 0.3,
+          "1": 0.7
+        }
+      }
+    }
+  ]
+}
+```
+
+Note that all enum positions with each distribution must be specified.
+
+#### union-position.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "nullable_col",
+      "type": [
+        "null",
+        {
+          "type": "string"
+        }
+      ],
+      "arg.properties": {
+        "position": 1
+      }
+    }
+  ]
+}
+```
+
+#### phone-number.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "caller_phone_with_prefix_id",
+        "type": {
+          "type": "string",
+          "logicalType": "phone-number",
+          "arg.properties": {
+            "region-code": "ES"
+          }
+        },
+        "doc": "Phone number (in the case of contact via phone call), WITH_INTERNATIONAL_PREFFIX, used in the contact action. It may not coincide with the phone number associated to the line or SUBSCRIBER_ID/CUSTOMER_ID"
+      }
+    ]
+}
+```
+
+#### kind.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "email",
+        "type": {
+          "type": "string",
+          "arg.properties": {
+            "kind": "email"
+          }
+        }
+      }
+    ]
+}
+```
+
+
+#### iso-date-range.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "day_dt",
+        "type": {
+          "logicalType": "iso-date",
+          "type": "string",
+          "arg.properties": {
+            "range": {
+              "start": "2020-01-01",
+              "end": "2020-02-01"
+            }
+          }
+        },
+        "doc": "Year, month and day of the data (snapshot of the Customer data)"
+      }
+    ]
+}
+```
