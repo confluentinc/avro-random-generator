@@ -142,7 +142,9 @@ a boolean schema, specifies the likelihood that the generated value is
 + __position:__ A Integer value that indicate the position of the union to select.
 + __distribution:__ A JSON object that conforms to the following formats:
     - `{"0": 0.3, "1": 0.7}` all the union's positions with its probability
-+ __region-code:__  
++ __region-code:__ A JSON string containing phone number region code ("ES", "EN"....).
++ __unique:__   A JSON boolean describing if the generated value must be unique or not. Note that if you are mixing this property
+with fixed options the amount of generated records must be less or equals to the available options.
 
 The following schemas support the following annotations:
 
@@ -160,30 +162,36 @@ The following schemas support the following annotations:
 + options
 + iteration
 + odds
++ unique
 
 #### int
 + options
 + range
 + iteration
++ unique
 
 #### long
 + options
 + range
 + iteration
++ unique
 
 #### float
 + options
 + range
 + iteration
++ unique
 
 #### double
 + options
 + range
 + iteration
++ unique
 
 #### bytes
 + options
 + length
++ unique
 
 #### string
 + options
@@ -192,6 +200,7 @@ The following schemas support the following annotations:
 + kind
 + range (only for date based logical types)
 + region-code (only for phone-number logical type)
++ unique
 
 __*Note:__ If both length and regex are specified for a string,
 the length property (if a JSON number) becomes a minimum length for the
@@ -202,9 +211,11 @@ string
 #### array
 + options
 + length
++ unique (unique generated values inside array)
 
 #### enum
 + options
++ unique
 
 #### fixed
 + options
@@ -213,6 +224,7 @@ string
 + options
 + length
 + keys
++ unique (unique generated values inside map)
 
 #### record
 + options
@@ -221,6 +233,7 @@ string
 + options
 + position
 + distribution
++ unique (unique generated values by union position)
 
 ### Example schemas
 
@@ -750,6 +763,33 @@ Note that all enum positions with each distribution must be specified.
           }
         },
         "doc": "Year, month and day of the data (snapshot of the Customer data)"
+      }
+    ]
+}
+```
+
+
+#### unique-options.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "letter",
+        "type": {
+          "type": "string",
+          "arg.properties": {
+            "unique": true,
+            "options": [
+              "A",
+              "B",
+              "C"
+            ]
+          }
+        }
       }
     ]
 }

@@ -60,4 +60,41 @@ public class CustomExtensionsGeneratorTest {
     generateRecordWithSchema("test-schemas/extensions/unions-distribution-error.json");
   }
 
+  @Test
+  public void shouldCreateUniqueFieldValues() {
+    Generator generator = builderWithSchema("test-schemas/extensions/unique-options.json");
+
+    GenericRecord record;
+    List<String> results = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      record = (GenericRecord) generator.generate();
+      Object col = record.get("letter");
+      if (col != null) {
+        results.add((String) col);
+      }
+    }
+
+    assertEquals("The number of generated records must be 3", 3, results.size(), 0);
+    assertTrue("A result does not exists", results.contains("A"));
+    assertTrue("B result does not exists", results.contains("B"));
+    assertTrue("C result does not exists", results.contains("C"));
+  }
+
+  @Test
+  public void shouldFailIfIsImpossibleGenerateUniqueValues() {
+    exceptionRule.expect(RuntimeException.class);
+    exceptionRule.expectMessage("letter field options out of stock, it could be due to the generation of more records than possible unique values");
+
+    Generator generator = builderWithSchema("test-schemas/extensions/unique-options.json");
+
+    GenericRecord record;
+    List<String> results = new ArrayList<>();
+    for (int i = 0; i < 4; i++) {
+      record = (GenericRecord) generator.generate();
+      Object col = record.get("letter");
+      if (col != null) {
+        results.add((String) col);
+      }
+    }
+  }
 }

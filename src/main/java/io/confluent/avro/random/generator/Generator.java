@@ -166,6 +166,13 @@ public class Generator {
   public static final String ODDS_PROP = "odds";
 
   /**
+   * The name of the attribute for specifying that this record field should be unique.
+   * Must be given as boolean.
+   * specified.
+   */
+  public static final String UNIQUE_PROP = "unique";
+
+  /**
    * The name of the attribute for specifying iterative behavior for generated values. Must be
    * given as an object with at least the {@link #ITERATION_PROP_START} property specified. The
    * first generated value for the schema will then be equal to the value given for
@@ -215,6 +222,7 @@ public class Generator {
   private final RandomStringGenerator randomStringGenerator;
   private final KindGenerator kindGenerator;
   private final LogicalTypeGenerator logicalTypeGenerator;
+  private final Map<String, Map<Object, Boolean>> uniques = new HashMap<>();
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -329,6 +337,29 @@ public class Generator {
     return topLevelSchema;
   }
 
+
+  private boolean needsRegeneration(String field, Map propertiesProp, Object value) {
+    boolean regenerate = false;
+    Object uniqueProp = propertiesProp.get(UNIQUE_PROP);
+
+    if (uniqueProp != null) {
+      if (!(uniqueProp instanceof Boolean)) {
+        throw new RuntimeException(String.format("%s property must be a boolean", UNIQUE_PROP));
+      } else if ((Boolean) uniqueProp) {
+        if (uniques.containsKey(field)) {
+          Map<Object, Boolean> currentValues = uniques.get(field);
+          regenerate = currentValues.containsKey(value);
+          currentValues.put(value, true);
+        } else {
+          uniques.put(field, new HashMap<Object, Boolean>(){{ put(value, true); }});
+        }
+
+      }
+    }
+
+    return regenerate;
+  }
+
   /**
    * Generate an object that matches the given schema and its specified properties.
    * @return An object whose type corresponds to the top-level schema as follows:
@@ -388,48 +419,69 @@ public class Generator {
    * </table>
    */
   public Object generate() {
-    return generateObject(topLevelSchema, Collections.emptyMap());
+    return generateObject("", topLevelSchema, Collections.emptyMap());
   }
 
-  private Object generateObject(Schema schema, Map<String, Object> globalArgs) {
+  private Object generateObject(String fieldName, Schema schema, Map<String, Object> globalArgs) {
     Map propertiesProp = getProperties(schema).orElse(Collections.emptyMap());
+    Object fieldValue;
     if (propertiesProp.containsKey(OPTIONS_PROP)) {
-      return generateOption(schema, propertiesProp);
+      fieldValue = generateOption(fieldName, schema, propertiesProp);
+    } else if (propertiesProp.containsKey(ITERATION_PROP)) {
+      fieldValue = generateIteration(schema, propertiesProp);
+    } else {
+      switch (schema.getType()) {
+        case ARRAY:
+          fieldValue = generateArray(fieldName, schema, propertiesProp);
+          break;
+        case BOOLEAN:
+          fieldValue = generateBoolean(propertiesProp);
+          break;
+        case BYTES:
+          fieldValue = generateBytes(schema, propertiesProp);
+          break;
+        case DOUBLE:
+          fieldValue = generateDouble(propertiesProp);
+          break;
+        case ENUM:
+          fieldValue = generateEnumSymbol(schema);
+          break;
+        case FIXED:
+          fieldValue = generateFixed(schema);
+          break;
+        case FLOAT:
+          fieldValue = generateFloat(propertiesProp);
+          break;
+        case INT:
+          fieldValue = generateInt(propertiesProp);
+          break;
+        case LONG:
+          fieldValue = generateLong(propertiesProp);
+          break;
+        case MAP:
+          fieldValue = generateMap(fieldName, schema, propertiesProp);
+          break;
+        case NULL:
+          fieldValue = generateNull();
+          break;
+        case RECORD:
+          fieldValue = generateRecord(schema);
+          break;
+        case STRING:
+          fieldValue = generateString(schema, propertiesProp);
+          break;
+        case UNION:
+          fieldValue = generateUnion(fieldName, schema, globalArgs);
+          break;
+        default:
+          throw new RuntimeException("Unrecognized schema type: " + schema.getType());
+      }
     }
-    if (propertiesProp.containsKey(ITERATION_PROP)) {
-      return generateIteration(schema, propertiesProp);
-    }
-    switch (schema.getType()) {
-      case ARRAY:
-        return generateArray(schema, propertiesProp);
-      case BOOLEAN:
-        return generateBoolean(propertiesProp);
-      case BYTES:
-        return generateBytes(schema, propertiesProp);
-      case DOUBLE:
-        return generateDouble(propertiesProp);
-      case ENUM:
-        return generateEnumSymbol(schema);
-      case FIXED:
-        return generateFixed(schema);
-      case FLOAT:
-        return generateFloat(propertiesProp);
-      case INT:
-        return generateInt(propertiesProp);
-      case LONG:
-        return generateLong(propertiesProp);
-      case MAP:
-        return generateMap(schema, propertiesProp);
-      case NULL:
-        return generateNull();
-      case RECORD:
-        return generateRecord(schema);
-      case STRING:
-        return generateString(schema, propertiesProp);
-      case UNION:
-        return generateUnion(schema, globalArgs);
-      default:
-        throw new RuntimeException("Unrecognized schema type: " + schema.getType());
+
+    if (needsRegeneration(fieldName, propertiesProp, fieldValue)) {
+      return generateObject(fieldName, schema, globalArgs);
+    } else {
+      return fieldValue;
     }
   }
 
@@ -631,11 +683,21 @@ public class Generator {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T generateOption(Schema schema, Map propertiesProp) {
+  private <T> T generateOption(String fieldName, Schema schema, Map propertiesProp) {
     if (!optionsCache.containsKey(schema)) {
       optionsCache.put(schema, parseOptions(schema, propertiesProp));
     }
+    Map<Object, Boolean> ussedOptions = uniques.getOrDefault(fieldName, new HashMap<>());
     List<Object> options = optionsCache.get(schema);
+    options.removeAll(ussedOptions.keySet());
+
+    if (options.size() == 0) {
+      throw new RuntimeException(String.format(
+          "%s field options out of stock, it could be due to the generation of more records than possible unique values",
+          fieldName
+      ));
+    }
+
     return (T) options.get(random.nextInt(options.size()));
   }
 
@@ -1097,11 +1159,11 @@ public class Generator {
     return (T) iteratorCache.get(schema).next();
   }
 
-  private Collection<Object> generateArray(Schema schema, Map propertiesProp) {
+  private Collection<Object> generateArray(String fieldName, Schema schema, Map propertiesProp) {
     int length = getLengthBounds(propertiesProp).random();
     Collection<Object> result = new ArrayList<>(length);
     for (int i = 0; i < length; i++) {
-      result.add(generateObject(schema.getElementType(), Collections.emptyMap()));
+      result.add(generateObject(fieldName, schema.getElementType(), Collections.emptyMap()));
     }
     return result;
   }
@@ -1293,13 +1355,13 @@ public class Generator {
     return random.nextLong();
   }
 
-  private Map<String, Object> generateMap(Schema schema, Map propertiesProp) {
+  private Map<String, Object> generateMap(String fieldName, Schema schema, Map propertiesProp) {
     Map<String, Object> result = new HashMap<>();
     int length = getLengthBounds(propertiesProp).random();
     Object keyProp = propertiesProp.get(KEYS_PROP);
     if (keyProp == null) {
       for (int i = 0; i < length; i++) {
-        result.put(generateRandomString(1), generateObject(schema.getValueType(), Collections.emptyMap()));
+        result.put(generateRandomString(1), generateObject(fieldName, schema.getValueType(), Collections.emptyMap()));
       }
     } else if (keyProp instanceof Map) {
       Map keyPropMap = (Map) keyProp;
@@ -1308,13 +1370,13 @@ public class Generator {
           optionsCache.put(schema, parseOptions(Schema.create(Schema.Type.STRING), keyPropMap));
         }
         for (int i = 0; i < length; i++) {
-          result.put(generateOption(schema, keyPropMap), generateObject(schema.getValueType(), Collections.emptyMap()));
+          result.put(generateOption(fieldName, schema, keyPropMap), generateObject(fieldName, schema.getValueType(), Collections.emptyMap()));
         }
       } else {
         for (int i = 0; i < length; i++) {
           result.put(
               generateString(schema, keyPropMap),
-              generateObject(schema.getValueType(), Collections.emptyMap())
+              generateObject(fieldName, schema.getValueType(), Collections.emptyMap())
           );
         }
       }
@@ -1335,7 +1397,7 @@ public class Generator {
     GenericRecordBuilder builder = new GenericRecordBuilder(schema);
     for (Schema.Field field : schema.getFields()) {
       Map<String, Object> args = (Map<String, Object>) field.getObjectProp(ARG_PROPERTIES_PROP);
-      builder.set(field, generateObject(field.schema(), args == null ? Collections.emptyMap(): args));
+      builder.set(field, generateObject(field.name(), field.schema(), args == null ? Collections.emptyMap(): args));
     }
     return builder.build();
   }
@@ -1428,7 +1490,7 @@ public class Generator {
     return enumeratedDistribution;
   }
 
-  private Object generateUnion(Schema schema, Map<String, Object> args) {
+  private Object generateUnion(String fieldName, Schema schema, Map<String, Object> args) {
     List<Schema> schemas = schema.getTypes();
     Integer position = null;
 
@@ -1438,7 +1500,7 @@ public class Generator {
       position = distribution != null ? new Integer(distribution.sample()) : random.nextInt(schemas.size());
     }
 
-    return generateObject(schemas.get(position), Collections.emptyMap());
+    return generateObject(fieldName + "." + position, schemas.get(position), Collections.emptyMap());
   }
 
   private LengthBounds getLengthBounds(Map propertiesProp) {

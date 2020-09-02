@@ -1,0 +1,21 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "letter",
+        "type": {
+          "type": "string",
+          "arg.properties": {
+            "unique": true,
+            "options": [
+              "A",
+              "B",
+              "C"
+            ]
+          }
+        }
+      }
+    ]
+}
