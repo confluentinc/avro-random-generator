@@ -1576,6 +1576,8 @@ public class Generator {
       return (Long) result;
     } else if (result instanceof Integer) {
       return ((Integer) result).longValue();
+    } else if (result instanceof String) {
+      return Long.parseLong((String) result);
     } else {
       throw new RuntimeException(String.format(
           "'%s' field of %s property must be an integral number, was %s instead",
