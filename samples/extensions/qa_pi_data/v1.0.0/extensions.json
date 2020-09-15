@@ -1,0 +1,44 @@
+{
+    "type": "record",
+    "x-fp-version": "1.0.0",
+    "name": "qa_pi_data",
+    "fields": [
+        {
+            "name": "user",
+            "type": {
+                "type": "string",
+                "x-fp-user-id": true,
+                "arg.properties": {
+                    "iteration": {
+                        "start": "${ITERATION_STEP}"
+                    }
+                }
+            }
+        },
+        {
+            "name": "age",
+            "type": {
+                "type": "int",
+                "arg.properties": {
+                    "range": {
+                        "min": "30",
+                        "max": "100"
+                    }
+                }
+            }
+        },
+        {
+            "name": "msisdn_with_prefix_id",
+            "type": {
+                "type": "string",
+                "logicalType": "phone-number",
+                "x-fp-identifier": "phone-number",
+                "arg.properties": {
+                    "unique": true,
+                    "regex": "(6[0-9]{8})|(7[1-4][0-9]{7})",
+                    "prefix": "+34"
+                }
+            }
+        }
+    ]
+}

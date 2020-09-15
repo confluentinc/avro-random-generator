@@ -11,10 +11,19 @@
         "type": "string",
         "logicalType": "iso-date",
         "arg.properties": {
-          "options": [
-            "2019-01-14",
-            "2019-01-15"
-          ]
+          "range": {
+            "start": "2020-09-06",
+            "end": "2020-09-07"
+          }
+        }
+      }
+    },
+    {
+      "name": "MSISDN_ID",
+      "type": {
+        "type": "string",
+        "arg.properties": {
+          "regex": "(6[0-9]{8})|(7[1-4][0-9]{7})"
         }
       }
     },
@@ -24,8 +33,20 @@
         "type": "string",
         "arg.properties": {
           "options": {
-            "file": "/opt/random-avro-generator/samples/extensions/operators.json",
+            "file": "/home/4p-datasets/utils/4p-dataset-generator/extensions/line-status-ids.json",
             "encoding": "json"
+          }
+        }
+      }
+    },
+    {
+      "name": "USER_4P_ID",
+      "type": {
+        "type": "string",
+        "x-fp-user-id": true,
+        "arg.properties": {
+          "iteration": {
+            "start": "${ITERATION_STEP}"
           }
         }
       }
@@ -39,10 +60,15 @@
           "logicalType": "phone-number",
           "x-fp-identifier": "phone-number",
           "arg.properties": {
-            "region-code": "ES"
+            "unique": true,
+            "regex": "(6[0-9]{8})|(7[1-4][0-9]{7})",
+            "prefix": "+34"
           }
         }
-      ]
+      ],
+      "arg.properties": {
+        "position": 1
+      }
     }
   ]
 }

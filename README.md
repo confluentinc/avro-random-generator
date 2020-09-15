@@ -54,7 +54,7 @@ Before running the scripts, you must create a `.env` file and setup there some
 configurations. First of all, copy the `.env.template` file to `.env`:
 
 ```
-docker-compose build
+docker-compose run build-jar
 docker-compose run avro-generator
 ```
 

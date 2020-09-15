@@ -1,0 +1,36 @@
+{
+    "name": "Consent_State",
+    "x-fp-version": "1.0.0",
+    "type": "record",
+    "fields": [
+        { "name": "id", "type": "string" },
+        { "name": "user_id", "type": { "type": "string", "x-fp-user-id": true } },
+        { "name": "legal_entity_id", "type": "string" },
+        { "name": "purpose_id", "type": "string" },
+        { "name": "identifier", "type":
+            [
+                "null",
+                {
+                    "name": "Identifier",
+                    "type": "record",
+                    "fields": [
+                        { "name": "type", "type": "string"},
+                        { "name": "id", "type": "string"}
+                    ]
+                }
+            ]
+        },
+        { "name": "status", "type":
+            {
+                "name": "ConsentStatus",
+                "type": "enum",
+                "symbols": ["Active", "Latched", "Expired", "Revoked", "Prompted", "Removed"]
+            }
+        },
+        { "name": "creation_date", "type": { "type": "string", "logicalType": "datetime" } },
+        { "name": "expiration_date", "type": [ "null", { "type": "string", "logicalType": "datetime" } ] },
+        { "name": "user_prompted", "type": [ "null", { "type": "string", "logicalType": "datetime" } ] },
+        { "name": "channel", "type": [ "null", "string" ] },
+        { "name": "reason", "type": [ "null", "string" ] }
+    ]
+}

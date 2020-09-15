@@ -1,0 +1,34 @@
+{
+    "type": "record",
+    "x-fp-version": "1.0.0",
+    "name": "qa_pi_data",
+    "fields": [
+        {
+            "name": "user",
+            "type": {
+                "type": "string",
+                "x-fp-user-id": true
+            }
+        },
+        {
+            "name": "age",
+            "type": "int"
+        },
+        {
+            "name": "day_dt",
+            "type": {
+                "type": "string",
+                "logicalType": "iso-date"
+            }
+        },
+        {
+            "name": "msisdn_with_prefix_id",
+            "type": {
+                "type": "string",
+                "logicalType": "phone-number",
+                "x-fp-identifier": "phone-number"
+            },
+            "doc": "Mobile Station Integrated Services Digital Network Identifier (Unique identifier of the mobile line WITH INTERNATIONAL PREFIX)"
+        }
+    ]
+}
