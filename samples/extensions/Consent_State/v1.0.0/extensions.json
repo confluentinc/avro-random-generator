@@ -1,0 +1,83 @@
+{
+    "name": "Consent_State",
+    "x-fp-version": "1.0.0",
+    "type": "record",
+    "fields": [
+        {
+            "name": "id",
+            "type": {
+                "type": "string",
+                "arg.properties": {
+                    "kind": "uuid"
+                }
+            }
+        },
+        {
+            "name": "user_id",
+            "type": {
+                "type": "string",
+                "x-fp-user-id": true,
+                "arg.properties": {
+                    "iteration": {
+                        "start": "${ITERATION_STEP}"
+                    }
+                }
+            }
+        },
+        {
+            "name": "legal_entity_id",
+            "type": {
+                "type": "string",
+                "arg.properties": {
+                    "options": [
+                        "qa-gdpr-filter-legal-entity"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "purpose_id",
+            "type": {
+                "type": "string",
+                "arg.properties": {
+                    "options": [
+                        "qa_purpose_gdpr_filter"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "identifier",
+            "arg.properties": {
+                "position": 0
+            }
+        },
+        {
+            "name": "status",
+            "type": {
+                "name": "ConsentStatus",
+                "type": "enum",
+                "arg.properties": {
+                    "options": [
+                        "Active",
+                        "Revoked"
+                    ]
+                },
+                "symbols": [
+                    "Active",
+                    "Latched",
+                    "Expired",
+                    "Revoked",
+                    "Prompted",
+                    "Removed"
+                ]
+            }
+        },
+        {
+            "name": "expiration_date",
+            "arg.properties": {
+                "position": 0
+            }
+        }
+    ]
+}

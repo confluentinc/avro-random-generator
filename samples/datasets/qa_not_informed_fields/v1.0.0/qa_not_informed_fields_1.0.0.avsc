@@ -1,0 +1,160 @@
+{
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "1.0.0",
+    "type": "record",
+    "name": "qa_not_informed_fields",
+    "doc": "Schema with NotInformed types",
+    "fields": [
+        {
+            "name": "NAME",
+            "type": [
+                {
+                    "type": "map",
+                    "arg.properties": {
+                        "length": 5,
+                        "keys": {
+                            "options": [
+                                "first"
+                            ]
+                        }
+                    },
+                    "values": {
+                        "name": "Data",
+                        "type": "record",
+                        "fields": [
+                            {
+                                "name": "STRING_FIELD_INSIDE",
+                                "type": [
+                                    {
+                                        "type": "string",
+                                        "arg.properties": {
+                                            "regex": "[a-zA-Z]{0,15}",
+                                            "length": {
+                                                "min": 5
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "enum",
+                                        "name": "NOT_INFORMED",
+                                        "namespace": "com.telefonica",
+                                        "doc": "Field not informed",
+                                        "symbols": [
+                                            "NotInformed"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "value",
+                                "type": [
+                                    "int",
+                                    "com.telefonica.NOT_INFORMED"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "Map field"
+        },
+        {
+            "name": "GENRE",
+            "type": [
+                {
+                    "type": "enum",
+                    "name": "GENRE",
+                    "symbols": [
+                        "Male",
+                        "Female"
+                    ]
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "Two enum"
+        },
+        {
+            "name": "LAST_BILL",
+            "type": [
+                {
+                    "type": "double"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "double field"
+        },
+        {
+            "name": "NEXT_BILLS",
+            "aliases": [
+                "next_bills"
+            ],
+            "type": [
+                {
+                    "type": "array",
+                    "arg.properties": {
+                        "length": 1
+                    },
+                    "items": {
+                        "name": "NEXT_BILL",
+                        "type": "record",
+                        "fields": [
+                            {
+                                "name": "id",
+                                "type": [
+                                    {
+                                        "type": "string",
+                                        "arg.properties": {
+                                            "regex": "[a-zA-Z]{0,15}",
+                                            "length": {
+                                                "min": 5
+                                            }
+                                        }
+                                    },
+                                    "com.telefonica.NOT_INFORMED"
+                                ]
+                            },
+                            {
+                                "name": "value",
+                                "type": [
+                                    {
+                                        "type": "double"
+                                    },
+                                    "com.telefonica.NOT_INFORMED"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "Array field with alias"
+        },
+        {
+            "name": "PHONE_NUMBER",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "regex": "+346[0-9]{8}"
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "Logical type field"
+        },
+        {
+            "name": "COUNTRY_CODE",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "regex": "(ES|FR|DE|CL)"
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "Logical type"
+        }
+    ]
+}

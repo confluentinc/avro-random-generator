@@ -10,6 +10,14 @@ x-environment: &environment
   - DATASETS_EXTENSIONS_IN
 
 services:
+  build-jar:
+    build:
+      context: .
+      dockerfile: ./delivery/docker/Dockerfile
+    command: bash -c "cd /opt/random-avro-generator && ./gradlew build && ./gradlew standalone"
+    environment: *environment
+    volumes:
+      - .:/opt/random-avro-generator:delegated
   avro-generator:
     build:
       context: .
