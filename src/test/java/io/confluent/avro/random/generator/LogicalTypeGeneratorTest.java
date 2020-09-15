@@ -48,6 +48,17 @@ public class LogicalTypeGeneratorTest {
   }
 
   @Test
+  public void shouldCreateValidDeprecatedIso8601DateTime() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/iso8601-timestamp.json");
+
+    String field = "interaction_tm";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Invalid datetime: " + value, Validations.isValidDatetime(value));
+  }
+
+  @Test
   public void shouldCreateValidPhoneNumber() {
     GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/phone-number.json");
 
