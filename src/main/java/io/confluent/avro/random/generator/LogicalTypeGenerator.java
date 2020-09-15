@@ -105,6 +105,7 @@ public class LogicalTypeGenerator {
 
   public String random(String logicalType, Map propertiesProp) {
     switch (logicalType) {
+      case "iso8601-timestamp":
       case "datetime":
         Map dateRangeProps = Optional.ofNullable(propertiesProp.get(DATE_RANGE_PROP))
             .map(m -> (Map) m)
