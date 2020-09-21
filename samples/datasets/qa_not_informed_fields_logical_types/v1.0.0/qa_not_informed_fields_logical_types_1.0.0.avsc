@@ -1,0 +1,197 @@
+{
+    "type": "record",
+    "name": "qa_not_informed_fields_logical_types",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "1.0.0",
+    "doc": "Schema for logical types supported by spark sdk with not informed fields",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "phone-number"
+                },
+                {
+                    "type": "enum",
+                    "name": "NOT_INFORMED",
+                    "doc": "Field not informed",
+                    "namespace": "com.telefonica",
+                    "symbols": [
+                        "NotInformed"
+                    ]
+                }
+            ],
+            "doc": "International number value according to ITU E.164"
+        },
+        {
+            "name": "PHONE_NUMBER_COPY",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "phone-number"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "International number value according to ITU E.164"
+        },
+        {
+            "name": "IMSI",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "imsi"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid International Mobile Subscriber Identity"
+        },
+        {
+            "name": "IMEI",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "imei"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "International Mobile Equipment Identity"
+        },
+        {
+            "name": "DATE",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "iso-date"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-8601 value that contains a complete date representation, with no time specification"
+        },
+        {
+            "name": "TIME",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "time"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-8601 value that contains a complete time representation"
+        },
+        {
+            "name": "DATETIME",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "datetime"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-8601 value that contains a complete date and time representation"
+        },
+        {
+            "name": "TIMESTAMP",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "iso8601-timestamp"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-8601 value that contains a complete date and time representation"
+        },
+        {
+            "name": "DURATION",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "duration"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-8601 value that contains a complete duration representation"
+        },
+        {
+            "name": "COUNTRY_CODE2",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "country-code-alpha-2"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-3166-1 alpha-2 country code"
+        },
+        {
+            "name": "COUNTRY_CODE3",
+            "type": [
+                {
+                    "type": "string",&& $"DATE.member0".isNotNull
+                    "logicalType": "country-code-alpha-3"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-3166-1 alpha-3 country code"
+        },
+        {
+            "name": "COUNTRY_NUMERIC",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "country-code-numeric"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-3166-1 numeric country code"
+        },
+        {
+            "name": "CURRENCY_CODE",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "currency-code-alpha"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-4217 alpha currency code"
+        },
+        {
+            "name": "CURRENCY_NUMERIC",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "currency-code-numeric"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A valid ISO-4217 numeric currency code"
+        },
+        {
+        "name": "GENRE",
+        "type": [
+            {
+            "type": "enum",
+            "name": "GENRE",
+            "symbols": [
+                "Male",
+                "Female"
+            ]
+            },
+            "com.telefonica.NOT_INFORMED"
+        ],
+        "doc": "Two enum"
+        },        
+        {
+            "name": "DECIMAL",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "decimal-string"
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "doc": "A string representation of a decimal numeral"
+        }
+    ]
+}

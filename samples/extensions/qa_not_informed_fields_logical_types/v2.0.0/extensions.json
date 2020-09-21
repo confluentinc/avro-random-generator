@@ -1,0 +1,51 @@
+{
+    "type": "record",
+    "name": "qa_not_informed_fields_logical_types",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "2.0.0",
+    "doc": "Schema for logical types supported by spark sdk with not informed fields",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER"
+        },
+        {
+            "name": "IMSI"
+        },
+        {
+            "name": "IMEI"
+        },
+        {
+            "name": "DATE"
+        },
+        {
+            "name": "TIME"
+        },
+        {
+            "name": "DATETIME"
+        },
+        {
+            "name": "TIMESTAMP"
+        },
+        {
+            "name": "DURATION"
+        },
+        {
+            "name": "COUNTRY_CODE2"
+        },
+        {
+            "name": "COUNTRY_CODE3"
+        },
+        {
+            "name": "COUNTRY_NUMERIC"
+        },
+        {
+            "name": "CURRENCY_CODE"
+        },
+        {
+            "name": "CURRENCY_NUMERIC"
+        },
+        {
+            "name": "DECIMAL"
+        }
+    ]
+}

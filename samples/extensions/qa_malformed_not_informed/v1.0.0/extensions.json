@@ -1,0 +1,171 @@
+{
+    "type": "record",
+    "name": "qa_malformed_not_informed",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "1.0.0",
+    "doc": "Schema for logical types supported by spark sdk with some invalid values",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "regex": "+346[0-9]{8}"
+                    }
+                },
+                {
+                  "type": "enum",
+                  "name": "NOT_INFORMED",
+                  "namespace": "com.telefonica",
+                  "symbols": [
+                    "NotInformed"
+                  ]
+                }
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },
+        {
+            "name": "IMSI",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "regex": "(546|214|262|266|724|611|999)[0-9]{12}"
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },
+        {
+            "name": "IMEI",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "regex": "([0-9]{2}|[1-9]{2}|[2-9]{2}|[3-9]{2}|[4-9]{2}|aa|())[0-9]{12}"
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },
+        {
+            "name": "DATE",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "options": [
+                            "20071103",
+                            "2018-05-03",
+                            "2013-W44-6",
+                            "2019W303",
+                            "2019W303",
+                            "2019W303",
+                            "2019W303",
+                            "2015307",
+                            "1998-001",
+                            "",
+                            "2018-02-31"
+                        ]
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }            
+        },
+        {
+            "name": "DATETIME",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "options": [
+                            "19800304T150605Z",
+                            "2007-11-03T16:18:05Z",
+                            "20071103T131805",
+                            "20071103T131805",
+                            "20071103T131805",
+                            "20071103T131805",
+                            "2017-12-03T13:18:05",
+                            "20071103T131805-0300",
+                            "2009-03-08T20:18:05-03:00",
+                            "",
+                            "9999-13-13T61:61:61Z"
+                        ]
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                
+              }
+        },
+        {
+            "name": "CURRENCY_CODE",
+            "type": [
+                {
+                    "type": "string",
+                    "arg.properties": {
+                        "options": [
+                            "AED",
+                            "AFN",
+                            "ALL",
+                            "ALL",
+                            "ALL",
+                            "ALL",
+                            "ALL",
+                            "AMD",
+                            "ANG",
+                            "AOA",
+                            "ARS",
+                            "XYZ"
+                        ]
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "GENRE",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        }
+    ]
+  }
+  
