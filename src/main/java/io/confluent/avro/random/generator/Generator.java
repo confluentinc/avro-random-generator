@@ -688,9 +688,7 @@ public class Generator {
     if (!optionsCache.containsKey(schema)) {
       optionsCache.put(schema, parseOptions(schema, propertiesProp));
     }
-    Map<Object, Boolean> ussedOptions = uniques.getOrDefault(fieldName, new HashMap<>());
     List<Object> options = optionsCache.get(schema);
-    options.removeAll(ussedOptions.keySet());
 
     if (options.size() == 0) {
       throw new RuntimeException(String.format(
@@ -699,6 +697,14 @@ public class Generator {
       ));
     }
 
+    Object uniqueProp = propertiesProp.get(UNIQUE_PROP);
+    if (uniqueProp != null) {
+      if (!(uniqueProp instanceof Boolean)) {
+        throw new RuntimeException(String.format("%s property must be a boolean", UNIQUE_PROP));
+      } else if ((Boolean) uniqueProp) {
+        return (T) options.remove(random.nextInt(options.size()));
+      }
+    }
     return (T) options.get(random.nextInt(options.size()));
   }
 
@@ -1226,8 +1232,7 @@ public class Generator {
 
   private GenericEnumSymbol generateEnumSymbol(Schema schema) {
     List<String> enums = schema.getEnumSymbols();
-    return new
-        GenericData.EnumSymbol(schema, enums.get(random.nextInt(enums.size())));
+    return new GenericData.EnumSymbol(schema, enums.get(random.nextInt(enums.size())));
   }
 
   private GenericFixed generateFixed(Schema schema) {

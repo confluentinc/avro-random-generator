@@ -1,0 +1,20 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "name",
+        "type": {
+          "type": "string",
+          "arg.properties": {
+            "unique": true,
+            "options": {
+              "file": "src/test/resources/test-includes/nouns-list.json",
+              "encoding": "json"
+            }
+          }
+        }
+      }
+    ]
+}
