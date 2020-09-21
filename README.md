@@ -145,6 +145,7 @@ a boolean schema, specifies the likelihood that the generated value is
 + __region-code:__ A JSON string containing phone number region code ("ES", "EN"....).
 + __unique:__   A JSON boolean describing if the generated value must be unique or not. Note that if you are mixing this property
 with fixed options the amount of generated records must be less or equals to the available options.
++ __malformed-rate:__ A JSON number between 0.0 and 1.0 representing the percent of malformed data (only applies to logical-types).
 
 The following schemas support the following annotations:
 
@@ -201,6 +202,7 @@ The following schemas support the following annotations:
 + range (only for date based logical types)
 + region-code (only for phone-number logical type)
 + unique
++ malformed-rate (only for date based logical types)
 
 __*Note:__ If both length and regex are specified for a string,
 the length property (if a JSON number) becomes a minimum length for the
@@ -790,6 +792,31 @@ Note that all enum positions with each distribution must be specified.
             ]
           }
         }
+      }
+    ]
+}
+```
+
+
+
+#### malformed-rate.json
+
+```
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+    [
+      {
+        "name": "day_dt",
+        "type": {
+          "logicalType": "iso-date",
+          "type": "string",
+          "arg.properties": {
+            "malformed-rate": 0.3
+          }
+        },
+        "doc": "Year, month and day of the data (snapshot of the Customer data)"
       }
     ]
 }

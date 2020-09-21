@@ -62,6 +62,7 @@ public class Generator {
   private final Map<Schema, List<Object>> optionsCache = new HashMap<>();
   private final Map<Schema, Iterator<Object>> iteratorCache = new IdentityHashMap<>();
   private final Map<Schema, EnumeratedDistribution<String>> enumeratedDistributions = new HashMap<>();
+  private final Map<Schema, EnumeratedDistribution<String>> malformedDistributions = new HashMap<>();
 
   /**
    * The name to use for the top-level JSON property when specifying ARG-specific attributes.
@@ -1432,6 +1433,11 @@ public class Generator {
       result = kindGenerator.random(kindProp);
     } else if (logicalType != null) {
       result = logicalTypeGenerator.random(logicalType.getName(), propertiesProp);
+
+      Object malformedProp = propertiesProp.get(LogicalTypeGenerator.MALFORMED_DISTRIBUTION_PROP);
+      if (malformedProp != null) {
+        result = getMalformedDistribution(schema, result, propertiesProp);
+      }
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }
@@ -1453,6 +1459,31 @@ public class Generator {
     String suffix = suffixProp != null ? (String) suffixProp : "";
 
     return prefix + result + suffix;
+  }
+
+  private String getMalformedDistribution(Schema schema, String value, Map args) {
+    EnumeratedDistribution<String> malformedDistribution = malformedDistributions.get(schema);
+    if (malformedDistribution == null && args != null && args.get(LogicalTypeGenerator.MALFORMED_DISTRIBUTION_PROP) != null) {
+      List<Pair<String, Double>> distributions = new ArrayList<>();
+      Double md = (Double) args.get(LogicalTypeGenerator.MALFORMED_DISTRIBUTION_PROP);
+      distributions.add(new Pair<>("malformed", md));
+      distributions.add(new Pair<>("real-value", 1.0 - md));
+      malformedDistribution = new EnumeratedDistribution<>(distributions);
+      malformedDistributions.put(schema, malformedDistribution);
+    }
+
+    if (malformedDistribution != null) {
+      String result = malformedDistribution.sample();
+      switch (result) {
+        case "real-value":
+          return value;
+        case "malformed":
+          return generateRandomString(getLengthBounds(args).random());
+      }
+      return result;
+    } else {
+      return value;
+    }
   }
 
   private EnumeratedDistribution<String> getDistribution(Schema schema, Map<String, Object> args) {
@@ -1486,6 +1517,7 @@ public class Generator {
       }
 
       enumeratedDistribution = new EnumeratedDistribution<>(distributions);
+      enumeratedDistributions.put(schema, enumeratedDistribution);
     }
     return enumeratedDistribution;
   }

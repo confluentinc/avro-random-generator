@@ -23,8 +23,14 @@ import static org.apache.commons.text.CharacterPredicates.DIGITS;
 public class LogicalTypeGenerator {
 
   /**
+   * The name of the attribute for specifying the rate of malformed data for this logical-type column. Must be
+   * given as double.
+   */
+  public static final String MALFORMED_DISTRIBUTION_PROP = "malformed-rate";
+
+  /**
    * The name of the attribute for specifying a region code for phone-number logical-types. Must be
-   * given as s string.
+   * given as string.
    */
   public static final String REGION_CODE_PROP = "region-code";
 
