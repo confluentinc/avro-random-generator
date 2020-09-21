@@ -1,5 +1,6 @@
 package io.confluent.avro.random.generator;
 
+import com.telefonica.baikal.utils.Validations;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class CustomExtensionsGeneratorTest {
       }
     }
 
-    assertEquals("", 0.7, ((double) results.size()) / 100, 0.1);
+    assertEquals("Wrong union distribution", 0.7, ((double) results.size()) / 100, 0.1);
   }
 
   @Test
@@ -96,5 +97,22 @@ public class CustomExtensionsGeneratorTest {
         results.add((String) col);
       }
     }
+  }
+
+  @Test
+  public void shouldCreateFieldWithMalformedRate() {
+    Generator generator = builderWithSchema("test-schemas/extensions/malformed-distribution.json");
+
+    GenericRecord record;
+    List<Object> results = new ArrayList<>();
+    for (int i = 0; i < 100; i++) {
+      record = (GenericRecord) generator.generate();
+      String col = (String) record.get("day_dt");
+      if (Validations.isValidDate(col)) {
+        results.add(col);
+      }
+    }
+
+    assertEquals("Wrong malformed distribution", 0.7, ((double) results.size()) / 100, 0.1);
   }
 }
