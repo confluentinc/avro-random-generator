@@ -127,7 +127,7 @@
             "name": "COUNTRY_CODE3",
             "type": [
                 {
-                    "type": "string",&& $"DATE.member0".isNotNull
+                    "type": "string",
                     "logicalType": "country-code-alpha-3"
                 },
                 "com.telefonica.NOT_INFORMED"
