@@ -23,7 +23,7 @@
               }
           ],
           "doc": "International number value according to ITU E.164"
-      },
+      },    
       {
           "name": "IMSI",
           "type": [
