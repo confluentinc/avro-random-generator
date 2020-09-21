@@ -100,6 +100,45 @@ public class CustomExtensionsGeneratorTest {
   }
 
   @Test
+  public void shouldCreateUniqueFieldValuesWithAnOptionsFile() {
+    Generator generator = builderWithSchema("test-schemas/extensions/unique-options-file.json");
+
+    GenericRecord record;
+    List<String> results = new ArrayList<>();
+    for (int i = 0; i < 4308; i++) {
+      record = (GenericRecord) generator.generate();
+      String col = record.get("name").toString();
+      if (col != null && !results.contains(col)) {
+        results.add(col);
+      }
+    }
+
+    assertEquals("The number of generated records must be 3", 4308, results.size(), 0);
+    assertTrue("aardvark result does not exists", results.contains("aardvark"));
+    assertTrue("grandfather result does not exists", results.contains("grandfather"));
+    assertTrue("zucchini result does not exists", results.contains("zucchini"));
+  }
+
+  @Test
+  public void shouldFailIfIsImpossibleGenerateUniqueValuesWithOptionsFile() {
+    exceptionRule.expect(RuntimeException.class);
+    exceptionRule.expectMessage("name field options out of stock, it could be due to the generation of more records than possible unique values");
+
+
+    Generator generator = builderWithSchema("test-schemas/extensions/unique-options-file.json");
+
+    GenericRecord record;
+    List<String> results = new ArrayList<>();
+    for (int i = 0; i < 4309; i++) {
+      record = (GenericRecord) generator.generate();
+      String col = record.get("name").toString();
+      if (col != null && !results.contains(col)) {
+        results.add(col);
+      }
+    }
+  }
+
+  @Test
   public void shouldCreateFieldWithMalformedRate() {
     Generator generator = builderWithSchema("test-schemas/extensions/malformed-distribution.json");
 
