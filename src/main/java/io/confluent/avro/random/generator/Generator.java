@@ -1433,13 +1433,13 @@ public class Generator {
       result = kindGenerator.random(kindProp);
     } else if (logicalType != null) {
       result = logicalTypeGenerator.random(logicalType.getName(), propertiesProp);
-
-      Object malformedProp = propertiesProp.get(LogicalTypeGenerator.MALFORMED_DISTRIBUTION_PROP);
-      if (malformedProp != null) {
-        result = getMalformedDistribution(schema, result, propertiesProp);
-      }
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
+    }
+
+    Object malformedProp = propertiesProp.get(LogicalTypeGenerator.MALFORMED_DISTRIBUTION_PROP);
+    if (malformedProp != null) {
+      result = getMalformedDistribution(schema, result, propertiesProp);
     }
 
     return  prefixAndSuffixString(result, propertiesProp);
