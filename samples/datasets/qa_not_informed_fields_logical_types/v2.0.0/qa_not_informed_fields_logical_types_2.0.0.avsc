@@ -1,0 +1,121 @@
+{
+    "type": "record",
+    "name": "qa_not_informed_fields_logical_types",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "2.0.0",
+    "doc": "Schema for logical types supported by spark sdk with not informed fields",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER",
+            "type": {
+                "type": "string",
+                "logicalType": "phone-number"
+            },
+            "doc": "International number value according to ITU E.164"
+        },
+        {
+            "name": "IMSI",
+            "type": {
+                "type": "string",
+                "logicalType": "imsi"
+            },
+            "doc": "A valid International Mobile Subscriber Identity"
+        },
+        {
+            "name": "IMEI",
+            "type": {
+                "type": "string",
+                "logicalType": "imei"
+            },
+            "doc": "International Mobile Equipment Identity"
+        },
+        {
+            "name": "DATE",
+            "type":{
+                "type": "string",
+                "logicalType": "iso-date"
+            },
+            "doc": "A valid ISO-8601 value that contains a complete date representation, with no time specification"
+        },
+        {
+            "name": "TIME",
+            "type": {
+                "type": "string",
+                "logicalType": "time"
+            },
+            "doc": "A valid ISO-8601 value that contains a complete time representation"
+        },
+        {
+            "name": "DATETIME",
+            "type": {
+                "type": "string",
+                "logicalType": "datetime"
+            },
+            "doc": "A valid ISO-8601 value that contains a complete date and time representation"
+        },
+        {
+            "name": "TIMESTAMP",
+            "type": {
+                "type": "string",
+                "logicalType": "iso8601-timestamp"
+            },
+            "doc": "A valid ISO-8601 value that contains a complete date and time representation"
+        },
+        {
+            "name": "DURATION",
+            "type": {
+                "type": "string",
+                "logicalType": "duration"
+            },
+            "doc": "A valid ISO-8601 value that contains a complete duration representation"
+        },
+        {
+            "name": "COUNTRY_CODE2",
+            "type": {
+                "type": "string",
+                "logicalType": "country-code-alpha-2"
+            },
+            "doc": "A valid ISO-3166-1 alpha-2 country code"
+        },
+        {
+            "name": "COUNTRY_CODE3",
+            "type": {
+                "type": "string",
+                "logicalType": "country-code-alpha-3"
+            },
+            "doc": "A valid ISO-3166-1 alpha-3 country code"
+        },
+        {
+            "name": "COUNTRY_NUMERIC",
+            "type": {
+                "type": "string",
+                "logicalType": "country-code-numeric"
+            },
+            "doc": "A valid ISO-3166-1 numeric country code"
+        },
+        {
+            "name": "CURRENCY_CODE",
+            "type": {
+                "type": "string",
+                "logicalType": "currency-code-alpha"
+            },
+            "doc": "A valid ISO-4217 alpha currency code"
+        },
+        {
+            "name": "CURRENCY_NUMERIC",
+            "type":  {
+                "type": "string",
+                "logicalType": "currency-code-numeric"
+            },
+            "doc": "A valid ISO-4217 numeric currency code"
+        },
+        {
+            "name": "DECIMAL",
+            "type": {
+                "type": "string",
+                "logicalType": "decimal-string"
+            },
+            "doc": "A string representation of a decimal numeral"
+        }
+    ]
+}

@@ -1,0 +1,153 @@
+{
+    "type": "record",
+    "name": "qa_not_informed_fields_logical_types",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "1.0.0",
+    "doc": "Schema for logical types supported by spark sdk with not informed fields",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "PHONE_NUMBER_COPY",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "IMSI",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "IMEI",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "DATE",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "TIME",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "DATETIME",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "TIMESTAMP",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "DURATION",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "COUNTRY_CODE2",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "COUNTRY_CODE3",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "COUNTRY_NUMERIC",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "CURRENCY_CODE",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "CURRENCY_NUMERIC",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "GENRE",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },        
+        {
+            "name": "DECIMAL",
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        }
+    ]
+}

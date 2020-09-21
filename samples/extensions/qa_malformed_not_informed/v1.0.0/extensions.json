@@ -1,0 +1,154 @@
+{
+    "type": "record",
+    "name": "qa_malformed_not_informed",
+    "namespace": "com.telefonica.baikal.qa",
+    "x-fp-version": "1.0.0",
+    "doc": "Schema for logical types supported by spark sdk with some invalid values",
+    "fields": [
+        {
+            "name": "PHONE_NUMBER",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "phone-number",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }                   
+                },
+                {
+                  "type": "enum",
+                  "name": "NOT_INFORMED",
+                  "namespace": "com.telefonica",
+                  "symbols": [
+                    "NotInformed"
+                  ]
+                }
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },       
+        {
+            "name": "IMSI",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "imsi",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },
+        {
+            "name": "IMEI",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "imei",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }
+        },
+        {
+            "name": "DATE",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "iso-date",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                 
+            }            
+        },
+        {
+            "name": "DATETIME",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "datetime",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }                
+              }
+        },
+        {
+            "name": "CURRENCY_CODE",
+            "type": [
+                {
+                    "type": "string",
+                    "logicalType": "currency-code-alpha",
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        },
+        {
+            "name": "GENRE",
+            "type": [
+                {
+                    "type": "enum",
+                    "name": "GENRE",
+                    "symbols": [
+                        "Male",
+                        "Female"
+                    ],
+                    "arg.properties": {
+                        "malformed-rate": 0.1
+                    }                    
+                },
+                "com.telefonica.NOT_INFORMED"
+            ],            
+            "arg.properties": {
+                "distribution": {
+                    "0": 0.9,
+                    "1": 0.1
+                }
+            }
+        }
+    ]
+  }
+  
