@@ -8,6 +8,8 @@ x-environment: &environment
   - RECORDS
   - DATASETS_IN
   - DATASETS_EXTENSIONS_IN
+  - START_DATE
+  - END_DATE
 
 services:
   build-jar:

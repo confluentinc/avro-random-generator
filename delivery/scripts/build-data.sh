@@ -21,6 +21,8 @@ ARG_DEFS=(
   "[--show=(true|false)]"
   "[--max-threads=(.*)]"
   "[--init-iteration=(.*)]"
+  "[--start-date=(.*)]"
+  "[--end-date=(.*)]"
 )
 
 function init() {
@@ -28,12 +30,17 @@ function init() {
   export NUM_FILES=${NUM_FILES:-1}
   export MAX_THREADS=${MAX_THREADS:-1}
   export INIT_ITERATION=${INIT_ITERATION:-0}
+  export START_DATE=${START_DATE:-$(date --iso-8601=date)}
+  export START_DATE=$(date -I -d "$START_DATE") || (echo "worng start date format"; exit -1)
+  export END_DATE=${END_DATE:-$(date -I -d "${START_DATE} + 1 day")}
+  export END_DATE=$(date -I -d "$END_DATE") || (echo "worng end date format"; exit -1)
 }
 
 function run() {
   local out_dir="/datasets-out/${DATASET_ID}/${DATASET_VERSION}"
   rm -rf $out_dir || true
   mkdir -p $out_dir
+  
   local out_schemas_dir="$out_dir/schemas"
   rm -rf ${out_schemas_dir} || true
   mkdir -p ${out_schemas_dir}
@@ -43,39 +50,46 @@ function run() {
   local merged_schema_path="${out_schemas_dir}/merged_schema.json"
   python3 lib/merge-schemas.py -s "$schema_orig" -e "$schema_extension" --out "${merged_schema_path}"
 
-  local counter=0
-  local current_threads=0
-  while [  $counter -lt $NUM_FILES ]; do
 
-    if [ "${SHOW}" = "true" ]; then
-      ARGS="-j -p"
-    else
-      out="${out_dir}/${DATASET_ID}.${counter}.avro"
-      touch $out
-      ARGS="-b -o ${out}"
-    fi
+  export DATE_RANGE_START="${START_DATE}"
+  while [ "${DATE_RANGE_START}" != "${END_DATE}" ]; do 
+    export DATE_RANGE_END=$(date -I -d "${DATE_RANGE_START} + 1 day")
 
-    export ITERATION_STEP="$((${RECORDS} * ${counter} + ${INIT_ITERATION}))"
-    envsubst < ${merged_schema_path} > ${out_schemas_dir}/schema_${counter}.json
-    avro-generator -f ${out_schemas_dir}/schema_${counter}.json -i ${RECORDS} ${ARGS} &
-    pids[$counter]=$!
-    echo "Generating ${out} in background, current thread [${pids[current_threads]}]"
+    local counter=0
+    local current_threads=0
+    while [  $counter -lt $NUM_FILES ]; do
 
-    let current_threads=current_threads+1
+      if [ "${SHOW}" = "true" ]; then
+        ARGS="-j -p"
+      else
+        out="${out_dir}/${DATASET_ID}.${counter}_${DATE_RANGE_START}.avro"
+        touch $out
+        ARGS="-b -o ${out}"
+      fi
 
-    if [ "${current_threads}" = "${MAX_THREADS}" ]; then
-        for index in "${!pids[@]}"; do
-          if [ "${pids[index]}" != "" ]; then
-            wait ${pids[index]}
-            let current_threads=current_threads-1
-            pids[$index]=""
-            break
-          fi
-        done
-    fi
+      export ITERATION_STEP="$(( ${RECORDS} * ${counter} + ${INIT_ITERATION} ))"
+      envsubst < ${merged_schema_path} > ${out_schemas_dir}/schema_${counter}_${DATE_RANGE_START}.json
+      avro-generator -f ${out_schemas_dir}/schema_${counter}_${DATE_RANGE_START}.json -i ${RECORDS} ${ARGS} &
+      pids[$counter]=$!
+      echo "Generating ${out} in background, current thread [${pids[current_threads]}]"
 
-    let counter=counter+1
+      local current_threads=$(( current_threads + 1 ))
 
+      if [ "${current_threads}" = "${MAX_THREADS}" ]; then
+          for index in "${!pids[@]}"; do
+            if [ "${pids[index]}" != "" ]; then
+              wait ${pids[index]}
+              local current_threads=$(( current_threads - 1 ))
+              pids[$index]=""
+              break
+            fi
+          done
+      fi
+
+      local counter=$(( counter + 1 ))
+    done
+
+    export DATE_RANGE_START="${DATE_RANGE_END}"
   done
 }
 
