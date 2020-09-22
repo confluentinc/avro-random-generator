@@ -75,6 +75,9 @@ Flags:
     -o &lt;file&gt;, --output &lt;file&gt;:	Write data to the file &lt;file&gt;, or stdout if &lt;file&gt; is '-' (default is '-')
     -p, --pretty:	Output each record in prettified format (has no effect if encoding is not JSON) (default)
     -s &lt;schema&gt;, --schema &lt;schema&gt;:	Spoof the schema &lt;schema&gt;
+    --start-date &lt;i&gt;:	Output &lt;i&gt; start date of spoofed data (default is today)
+    --end-date &lt;i&gt;:	Output &lt;i&gt; start date of spoofed data (default is tomorrow)
+
 
 Source repository:
 https://github.com/confluentinc/avro-random-generator
@@ -106,7 +109,8 @@ and successive values will increase by &lt;step&gt;, wrapping around at
 if &lt;restart&gt; is equal to &lt;start&gt;. If provided with a boolean
 schema, only &lt;start&gt; may be specified; the resulting values will
 begin with &lt;start&gt; and alternate from `true` to `false` and from
-`false` to `true` from that point on. 
+`false` to `true` from that point on.
+> ITERATION_STEP environment var can be used as script argument
 + __range:__ A JSON object that conforms to the following formats:
     - `{"min": <min>, "max": <max>}` (at least one of "min" or "max" must be
     specified). If provided, ensures that the generated number will be
@@ -119,6 +123,7 @@ begin with &lt;start&gt; and alternate from `true` to `false` and from
     specified). If provided, ensures that the generated datetime will be
     greater than or equal to &lt;start&gt; and/or strictly less than &lt;end&gt;.
     > Only applicable for the logical-type datetime
+    > DATE_RANGE_START and DATE_RANGE_END environment var can be used as script arguments
 + __length:__ Either a JSON number or a JSON object that conforms to the
 following format: `{"min": <min>, "max": <max>}` (at least one of "min"
 or "max" must be specified, and if present, values for either must be
