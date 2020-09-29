@@ -1,0 +1,14 @@
+{ "type": "record",
+  "name": "logicals",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields":
+  [
+    {
+      "name": "longitude",
+      "type": {
+        "type": "double",
+        "logicalType": "longitude"
+      }
+    }
+  ]
+}

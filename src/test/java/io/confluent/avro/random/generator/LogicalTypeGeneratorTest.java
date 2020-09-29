@@ -21,7 +21,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid iso-date: " + value, Validations.isValidDate(value));
+    assertTrue("Valid iso-date: " + value, Validations.isValidDate(value));
   }
 
   @Test
@@ -32,7 +32,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid iso-date: " + value, Validations.isValidDate(value));
+    assertTrue("Valid iso-date: " + value, Validations.isValidDate(value));
   }
 
 
@@ -44,7 +44,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid datetime: " + value, Validations.isValidDatetime(value));
+    assertTrue("Valid datetime: " + value, Validations.isValidDatetime(value));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid datetime: " + value, Validations.isValidDatetime(value));
+    assertTrue("Valid datetime: " + value, Validations.isValidDatetime(value));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
+    assertTrue("Valid phone number: " + value, Validations.isValidPhoneNumber(value));
   }
 
   @Test
@@ -78,7 +78,7 @@ public class LogicalTypeGeneratorTest {
       assertNotNull(record.get("caller_phone_with_prefix_id"));
       String value = record.get(field).toString();
       System.out.println("Generated value is: " + value);
-      assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
+      assertTrue("Valid phone number: " + value, Validations.isValidPhoneNumber(value));
     }
   }
 
@@ -107,8 +107,8 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid phone number: " + value, Validations.isValidPhoneNumber(value));
-    assertTrue("Invalid ES phone number: " + value, value.startsWith("+34"));
+    assertTrue("Valid phone number: " + value, Validations.isValidPhoneNumber(value));
+    assertTrue("Valid ES phone number: " + value, value.startsWith("+34"));
   }
 
   @Test
@@ -119,7 +119,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid country code: " + value, Validations.isValidCountryCodeNumeric(value));
+    assertTrue("Valid country code: " + value, Validations.isValidCountryCodeNumeric(value));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid country code alpha-2: " + value, Validations.isValidCountryCode2(value));
+    assertTrue("Valid country code alpha-2: " + value, Validations.isValidCountryCode2(value));
   }
 
   @Test
@@ -141,7 +141,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid country code alpha-3: " + value, Validations.isValidCountryCode3(value));
+    assertTrue("Valid country code alpha-3: " + value, Validations.isValidCountryCode3(value));
   }
 
   @Test
@@ -152,7 +152,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid currency code: " + value, Validations.isValidCurrencyNumeric(value));
+    assertTrue("Valid currency code: " + value, Validations.isValidCurrencyNumeric(value));
   }
 
   @Test
@@ -163,7 +163,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid currency code: " + value, Validations.isValidCurrency(value));
+    assertTrue("Valid currency code: " + value, Validations.isValidCurrency(value));
   }
 
   @Test
@@ -174,7 +174,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid imei: " + value, Validations.isValidIMEINumber(value));
+    assertTrue("Valid imei: " + value, Validations.isValidIMEINumber(value));
   }
 
   @Test
@@ -185,7 +185,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid imsi: " + value, Validations.isValidIMSINumber(value));
+    assertTrue("Valid imsi: " + value, Validations.isValidIMSINumber(value));
   }
 
   @Test
@@ -196,7 +196,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid call_duration: " + value, Validations.isValidDuration(value));
+    assertTrue("Valid call_duration: " + value, Validations.isValidDuration(value));
   }
 
   @Test
@@ -207,7 +207,7 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid time: " + value, Validations.isValidTime(value));
+    assertTrue("Valid time: " + value, Validations.isValidTime(value));
   }
 
   @Test
@@ -218,7 +218,62 @@ public class LogicalTypeGeneratorTest {
     assertNotNull(record.get(field));
     String value = record.get(field).toString();
     System.out.println("Generated value is: " + value);
-    assertTrue("Invalid decimal-string: " + value, Validations.tryParseDecimal(value).nonEmpty());
+    assertTrue("Valid decimal-string: " + value, Validations.tryParseDecimal(value).nonEmpty());
+  }
+
+  @Test
+  public void shouldCreateValidTimezone() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/timezone.json");
+
+    String field = "timezone";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Valid timezone: " + value, Validations.isValidTimeZone(value));
+  }
+
+  @Test
+  public void shouldCreateValidIPv4() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/ipv4.json");
+
+    String field = "ip_address";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Valid ip_address v4: " + value, Validations.isValidIPv4(value));
+  }
+
+  @Test
+  public void shouldCreateValidIPv6() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/ipv6.json");
+
+    String field = "ip_address";
+    assertNotNull(record.get(field));
+    String value = record.get(field).toString();
+    System.out.println("Generated value is: " + value);
+    assertTrue("Valid ip_address v6: " + value, Validations.isValidIPv6(value));
+  }
+
+  @Test
+  public void shouldCreateValidLatitude() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/latitude.json");
+
+    String field = "latitude";
+    assertNotNull(record.get(field));
+    Double value = Double.valueOf(record.get(field).toString());
+    System.out.println("Generated value is: " + value);
+    assertTrue("Valid latitude: " + value, Validations.isValidLatitude(value));
+  }
+
+  @Test
+  public void shouldCreateValidLongitude() {
+    GenericRecord record = generateRecordWithSchema("test-schemas/logical-types/longitude.json");
+
+    String field = "longitude";
+    assertNotNull(record.get(field));
+    Double value = Double.valueOf(record.get(field).toString());
+    System.out.println("Generated value is: " + value);
+    assertTrue("Valid latitude: " + value, Validations.isValidLongitude(value));
   }
 
 }

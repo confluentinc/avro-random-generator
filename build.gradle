@@ -163,12 +163,14 @@ dependencies {
 
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 
-    compile group: 'com.telefonica.baikal', name: 'spark-commons_2.12', version: '0.5.0-BETA10'
+    compile group: 'com.telefonica.baikal', name: 'spark-commons_2.12', version: '0.6.0-BETA1'
 
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '8.11.5'
 
     compile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
-    
+
+    compile group: 'com.googlecode.java-ipv6', name: 'java-ipv6', version: '0.17'
+
     ////////////////////////////////////////////////////////////////
 
     testCompile group: 'org.apache.spark', name: 'spark-sql_2.12', version: '2.4.4'

@@ -442,7 +442,7 @@ public class Generator {
           fieldValue = generateBytes(schema, propertiesProp);
           break;
         case DOUBLE:
-          fieldValue = generateDouble(propertiesProp);
+          fieldValue = generateDouble(schema, propertiesProp);
           break;
         case ENUM:
           fieldValue = generateEnumSymbol(schema);
@@ -1202,7 +1202,13 @@ public class Generator {
     return ByteBuffer.wrap(bytes);
   }
 
-  private Double generateDouble(Map propertiesProp) {
+  private Double generateDouble(Schema schema, Map propertiesProp) {
+    Double result;
+    LogicalType logicalType = schema.getLogicalType();
+    if (logicalType != null) {
+      result = logicalTypeGenerator.randomDouble(logicalType.getName(), propertiesProp);
+    }
+
     Object rangeProp = propertiesProp.get(RANGE_PROP);
     if (rangeProp != null) {
       if (rangeProp instanceof Map) {
