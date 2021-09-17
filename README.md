@@ -178,6 +178,11 @@ string
 #### union
 + options
 
+### Logical
+
+#### decimal
++ range (note that min/max values must fit inside a 64-bit floating point decimal)
+
 ### Example schemas
 
 Example schemas are provided in the test/schemas directory. Here are a

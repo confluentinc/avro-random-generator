@@ -21,6 +21,49 @@
         "logicalType": "decimal",
         "precision": 256
       }
+    },
+    {
+      "name": "decimal_bytes_min",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 4,
+        "scale": 2,
+        "arg.properties": {
+          "range": {
+            "min": -98.76
+          }
+        }
+      }
+    },
+    {
+      "name": "decimal_bytes_max",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 4,
+        "scale": 1,
+        "arg.properties": {
+          "range": {
+            "max": -98.76
+          }
+        }
+      }
+    },
+    {
+      "name": "decimal_bytes_min_and_Max",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 5,
+        "scale": 3,
+        "arg.properties": {
+          "range": {
+            "min": -9.876,
+            "max": 1.234
+          }
+        }
+      }
     }
   ]
 }

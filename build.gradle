@@ -24,7 +24,7 @@ sourceCompatibility = 1.8
 
 group = 'io.confluent.avro'
 archivesBaseName = 'avro-random-generator'
-version = '0.3.2-SNAPSHOT'
+version = '0.4.0-SNAPSHOT'
 
 signing {
     sign configurations.archives
