@@ -1,0 +1,17 @@
+{
+  "type": "record",
+  "name": "outer_doll",
+  "namespace": "io.confluent.avro.random.generator",
+  "fields": [
+    {
+      "name": "MY_STRING",
+      "type": {
+        "type": "string",
+        "arg.properties": {
+          "regex": "[a-zA-Z0-9]{16}"
+        }
+      },
+      "default": ""
+    }
+  ]
+}

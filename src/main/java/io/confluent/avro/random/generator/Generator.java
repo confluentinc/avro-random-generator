@@ -1373,7 +1373,14 @@ public class Generator {
 
     String result;
     if (regexProp != null) {
-      result = generateRegexString(schema, regexProp, getLengthBounds(propertiesProp));
+      Object lengthProp = propertiesProp.get(LENGTH_PROP);
+      LengthBounds lengthBounds;
+      if (lengthProp == null) {
+        lengthBounds = new LengthBounds(0, Integer.MAX_VALUE);
+      } else {
+        lengthBounds = getLengthBounds(lengthProp);
+      }
+      result = generateRegexString(schema, regexProp, lengthBounds);
     } else {
       result = generateRandomString(getLengthBounds(propertiesProp).random());
     }
