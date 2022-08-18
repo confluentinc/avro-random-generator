@@ -16,10 +16,12 @@
 
 package io.confluent.avro.random.generator;
 
-import com.mifmif.common.regex.Generex;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import com.github.curiousoddman.rgxgen.RgxGen;
+import com.github.curiousoddman.rgxgen.config.RgxGenOption;
+import com.github.curiousoddman.rgxgen.config.RgxGenProperties;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
@@ -42,7 +44,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +66,7 @@ import java.util.Random;
 @SuppressWarnings("WeakerAccess")
 public class Generator {
 
-  private final Map<Schema, Generex> generexCache = new HashMap<>();
+  private final Map<Schema, RgxGen> rgxGenCache = new HashMap<>();
   private final Map<Schema, List<Object>> optionsCache = new HashMap<>();
   private final Map<Schema, Iterator<Object>> iteratorCache = new IdentityHashMap<>();
 
@@ -1349,15 +1350,17 @@ public class Generator {
 
   @SuppressWarnings("unchecked")
   private String generateRegexString(Schema schema, Object regexProp, LengthBounds lengthBounds) {
-    if (!generexCache.containsKey(schema)) {
+    if (!rgxGenCache.containsKey(schema)) {
       if (!(regexProp instanceof String)) {
         throw new RuntimeException(String.format("%s property must be a string", REGEX_PROP));
       }
-      generexCache.put(schema, new Generex((String) regexProp, random));
+      RgxGen rgxGen = new RgxGen((String) regexProp);
+      RgxGenProperties rgxProperties = new RgxGenProperties();
+      RgxGenOption.INFINITE_PATTERN_REPETITION
+        .setInProperties(rgxProperties, lengthBounds.max() - 1);
+      rgxGenCache.put(schema, rgxGen);
     }
-    // Generex.random(low, high) generates in range [low, high]; we want [low, high), so subtract
-    // 1 from maxLength
-    return generexCache.get(schema).random(lengthBounds.min(), lengthBounds.max() - 1);
+    return rgxGenCache.get(schema).generate(random);
   }
 
   private String generateRandomString(int length) {

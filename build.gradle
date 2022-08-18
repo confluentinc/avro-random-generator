@@ -19,12 +19,13 @@ apply plugin: 'idea'
 apply plugin: 'checkstyle'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
 
 group = 'io.confluent.avro'
 archivesBaseName = 'avro-random-generator'
-version = '0.4.2-SNAPSHOT'
+version = '0.4.3-SNAPSHOT'
 
 signing {
     sign configurations.archives
@@ -71,9 +72,10 @@ clean.doLast {
 
 repositories {
     jcenter()
-    maven {
-        url 'https://nexus.confluent.io/repository/maven-snapshots/'
-    }
+//    maven {
+//        url 'https://nexus.confluent.io/repository/maven-snapshots/'
+//    }
+    mavenLocal()
 }
 
 uploadArchives {
@@ -153,7 +155,7 @@ dependencies {
 
     compile group: 'org.apache.avro', name: 'avro', version: '1.9.1'
 
-    compile group: 'com.github.mifmif', name: 'generex', version: '1.0.2'
+    implementation group: 'com.github.curious-odd-man', name: 'rgxgen', version: '1.4'
 
     ////////////////////////////////////////////////////////////////
 
