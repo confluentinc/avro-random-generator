@@ -1,0 +1,10 @@
+{
+  "type": "array",
+  "items": "long",
+  "arg.properties": {
+    "options": [
+      [ 1, 2 ],
+      [ 3, 4 ]
+    ]
+  }
+}

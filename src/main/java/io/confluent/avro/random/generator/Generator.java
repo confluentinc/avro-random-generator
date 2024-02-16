@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Generates Java objects according to an {@link Schema Avro Schema}.
@@ -463,7 +464,11 @@ public class Generator {
     } else if (schema.getType() == Schema.Type.LONG && option instanceof Integer) {
       option = ((Integer) option).longValue();
     } else if (schema.getType() == Schema.Type.ARRAY && option instanceof Collection) {
-      option = new GenericData.Array(schema, (Collection) option);
+      Collection<Object> optionItems = (Collection) option;
+      List<Object> wrappedOptions = optionItems.stream()
+          .map(item -> wrapOption(schema.getElementType(), item))
+          .collect(Collectors.toList());
+      option = new GenericData.Array(schema, wrappedOptions);
     } else if (schema.getType() == Schema.Type.ENUM && option instanceof String) {
       option = new GenericData.EnumSymbol(schema, (String) option);
     } else if (schema.getType() == Schema.Type.FIXED && option instanceof String) {
