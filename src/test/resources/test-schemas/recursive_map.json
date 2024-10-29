@@ -1,0 +1,22 @@
+{
+  "name": "users",
+  "type": "record",
+  "fields": [
+    {
+      "name": "a",
+      "type": "string"
+    },
+    {
+      "name": "b",
+      "type": "long"
+    }
+  ],
+  "arg.properties": {
+    "options": [
+      {
+        "a": "example",
+        "b": 2147483647
+      }
+    ]
+  }
+}
