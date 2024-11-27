@@ -474,10 +474,14 @@ public class Generator {
       GenericRecordBuilder optionBuilder = new GenericRecordBuilder(schema);
       for (Schema.Field field : schema.getFields()) {
         if (optionMap.containsKey(field.name())) {
-          optionBuilder.set(field, optionMap.get(field.name()));
+          optionBuilder.set(field, wrapOption(field.schema(), optionMap.get(field.name())));
         }
       }
       option = optionBuilder.build();
+    } else if (schema.getType() == Schema.Type.UNION) {
+      for (Schema field : schema.getTypes()) {
+        option = wrapOption(field, option);
+      }
     }
     return option;
   }
