@@ -198,9 +198,17 @@ public class Generator {
 
   static final String DECIMAL_LOGICAL_TYPE_NAME = "decimal";
 
+  /**
+   * The default upper bound (16 MiB) for any single length given through {@link #LENGTH_PROP}
+   * (or its {@link #LENGTH_PROP_MIN}/{@link #LENGTH_PROP_MAX} bounds). It can be changed with
+   * {@link Builder#maxLength(int)}.
+   */
+  public static final int DEFAULT_MAX_LENGTH = 16 * 1024 * 1024;
+
   private final Schema topLevelSchema;
   private final Random random;
   private final long generation;
+  private final int maxLength;
 
   /**
    * Creates a generator out of an already-parsed {@link Schema}.
@@ -213,9 +221,14 @@ public class Generator {
   }
 
   protected Generator(Schema topLevelSchema, Random random, long generation) {
+    this(topLevelSchema, random, generation, DEFAULT_MAX_LENGTH);
+  }
+
+  protected Generator(Schema topLevelSchema, Random random, long generation, int maxLength) {
     this.topLevelSchema = topLevelSchema;
     this.random = random;
     this.generation = generation;
+    this.maxLength = maxLength;
   }
 
   /**
@@ -255,12 +268,14 @@ public class Generator {
     private Schema topLevelSchema;
     private Random random;
     private long generation;
+    private int maxLength;
     private Schema.Parser parser;
 
     public Builder() {
       parser = new Schema.Parser();
       random = new Random();
       generation = 0L;
+      maxLength = DEFAULT_MAX_LENGTH;
     }
 
     public Builder schema(Schema schema) {
@@ -293,8 +308,23 @@ public class Generator {
       return this;
     }
 
+    /**
+     * Sets the largest value accepted for any single {@link #LENGTH_PROP} (including its
+     * {@link #LENGTH_PROP_MIN} and {@link #LENGTH_PROP_MAX} bounds). Larger values make
+     * generation fail instead of allocating that much memory. Defaults to
+     * {@link #DEFAULT_MAX_LENGTH}.
+     * @param maxLength The maximum allowed length; must be positive.
+     */
+    public Builder maxLength(int maxLength) {
+      if (maxLength <= 0) {
+        throw new IllegalArgumentException("maxLength must be positive");
+      }
+      this.maxLength = maxLength;
+      return this;
+    }
+
     public Generator build() {
-      return new Generator(topLevelSchema, random, generation);
+      return new Generator(topLevelSchema, random, generation, maxLength);
     }
   }
 
@@ -1424,6 +1454,7 @@ public class Generator {
             LENGTH_PROP
         ));
       }
+      checkWithinMaxLength(length);
       return new LengthBounds(length);
     } else if (lengthProp instanceof Map) {
       Map lengthProps = (Map) lengthProp;
@@ -1438,7 +1469,13 @@ public class Generator {
         ));
       }
       minLength = minLength != null ? minLength : 0;
-      maxLength = maxLength != null ? maxLength : Integer.MAX_VALUE;
+      checkWithinMaxLength(minLength);
+      if (maxLength != null) {
+        checkWithinMaxLength(maxLength);
+      } else {
+        // No explicit upper bound: use the configured cap rather than Integer.MAX_VALUE.
+        maxLength = Math.max(this.maxLength, minLength + 1);
+      }
       if (minLength < 0) {
         throw new RuntimeException(String.format(
             "%s field of %s property cannot be negative",
@@ -1460,6 +1497,18 @@ public class Generator {
           "%s property must either be an integral number or an object, was %s instead",
           LENGTH_PROP,
           lengthProp.getClass().getName()
+      ));
+    }
+  }
+
+  private void checkWithinMaxLength(int length) {
+    if (length > maxLength) {
+      throw new RuntimeException(String.format(
+          "%s value of %d exceeds the maximum allowed length of %d; "
+              + "it can be changed with Generator.Builder#maxLength",
+          LENGTH_PROP,
+          length,
+          maxLength
       ));
     }
   }
